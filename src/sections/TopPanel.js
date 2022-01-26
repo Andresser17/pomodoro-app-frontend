@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 function TopPanel(props) {
   // Manage scroll position
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -19,7 +19,7 @@ function TopPanel(props) {
 
   // Top Panel behaviour
   const base =
-    "fixed top-0 w-full py-2 sm:py-4 flex flex-col items-end sm:flex-row sm:justify-end transition-all duration-300 ease-out z-10";
+    "w-full py-2 px-2 sm:py-4 flex flex-col items-end sm:flex-row sm:justify-end sm:justify-between transition-all duration-300 ease-out z-10";
   const home = "bg-black/50 text-white";
   const inactive = "sm:bg-black/20 sm:text-white/20 sm:text-xs";
   const active =
