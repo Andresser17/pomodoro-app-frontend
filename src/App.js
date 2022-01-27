@@ -8,13 +8,15 @@ import UserLogo from "./components/UserLogo";
 
 function App() {
   return (
-    <main>
+    <main className="min-h-screen bg-slate-400">
       <TopPanel>
         <SiteLogo />
         <UserLogo />
       </TopPanel>
-      <Timer />
-      <Tasks />
+      <div className="flex flex-col items-center py-4">
+        <Timer />
+        <Tasks />
+      </div>
     </main>
   );
 }
