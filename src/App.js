@@ -14,7 +14,13 @@ function App() {
         <UserLogo />
       </TopPanel>
       <div className="flex flex-col items-center py-4">
-        <Timer />
+        <Timer
+          modes={[
+            { mode: "work", remainTime: 60, default: true },
+            { mode: "short-break", remainTime: 5 },
+            { mode: "long-break", remainTime: 20 },
+          ]}
+        />
         <Tasks />
       </div>
     </main>
