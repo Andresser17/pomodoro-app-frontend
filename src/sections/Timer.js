@@ -21,14 +21,21 @@ function useInterval(callback, delay) {
 }
 
 function CounterButton(props) {
-  const mode = String(props.name).toLowerCase().replace(" ", "-");
+  // Convert mode to name
+  const name = props.mode
+    .replace("-", " ")
+    .split(" ")
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
 
   return (
     <button
       className="px-4 py-2 bg-blue-600 rounded text-md"
-      onClick={() => props.toggleModes(mode)}
+      onClick={() => props.toggleModes(props.mode)}
     >
-      {props.name}
+      {name}
     </button>
   );
 }
@@ -38,13 +45,11 @@ function CounterToggle(props) {
     props.setCurrentMode(mode);
   };
 
-  return (
-    <div className="flex justify-around p-2 bg-white/10">
-      <CounterButton toggleModes={toggleModes} name="Work" />
-      <CounterButton toggleModes={toggleModes} name="Short Break" />
-      <CounterButton toggleModes={toggleModes} name="Long Break" />
-    </div>
-  );
+  const buttons = props.modes.map((item) => {
+    return <CounterButton toggleModes={toggleModes} mode={item.mode} />;
+  });
+
+  return <div className="flex justify-around p-2 bg-white/10">{buttons}</div>;
 }
 
 function Counter(props) {
@@ -80,23 +85,26 @@ function Timer(props) {
   // Set all values of every mode
   const toggleModes = () => {
     // Iterate in modes
-    props.modes.forEach(item => {
-      // set default mode
+    props.modes.forEach((item) => {
+      // Set default mode
       if (currentMode.length === 0 && item?.default) {
-        setRemainTime(item.remainTime);
-        setCurrentMode(item.mode)
+        setCurrentMode(item.mode);
+        // Convert time to minutes expressed in seconds
+        setRemainTime(item.remainTime * 60);
         return;
       }
 
       // Set user selected mode
-      // setRemainTime(item.remainTime); 
-      return;
-    })
-  }
+      if (item.mode === currentMode) {
+        setRemainTime(item.remainTime * 60);
+        return;
+      }
+    });
+  };
 
   useEffect(() => {
-    toggleModes()
-  }, [currentMode])
+    toggleModes();
+  }, [currentMode]);
 
   const countdown = () => {
     if (remainTime === 0) return toggle();
@@ -109,12 +117,11 @@ function Timer(props) {
 
   return (
     <div className="flex flex-col justify-center p-4 text-white rounded bg-zinc-900 w-96">
-      <CounterToggle setCurrentMode={setCurrentMode} />
+      <CounterToggle modes={props.modes} setCurrentMode={setCurrentMode} />
       <Counter time={remainTime} />
       <button onClick={toggle} className="p-2 text-xl bg-blue-600 rounded">
         Start/Stop
       </button>
-      {currentMode}
     </div>
   );
 }

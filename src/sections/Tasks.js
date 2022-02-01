@@ -19,7 +19,7 @@ function TaskCards(props) {
         <p className="my-4">{item.description}</p>
       </div>
       <div className="flex justify-end">
-        <button onClick="" className="w-6 mr-4 text-white">
+        <button className="w-6 mr-4 text-white">
           <EditIcon />
         </button>
         <button className="px-4 py-2 bg-green-600 rounded">Done</button>
