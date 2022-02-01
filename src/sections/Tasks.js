@@ -2,29 +2,79 @@ import { useState, useEffect } from "react";
 // Icons
 import { ReactComponent as EditIcon } from "../icons/edit-icon.svg";
 
-function TaskCards(props) {
-  const items = props.items;
+function TaskCard(props) {
+  const task = props.task;
+  // States
+  const [selectedStyle, setSelectedStyle] = useState("");
+  const [taskCompleted, setTaskCompleted] = useState(false);
+  const [completedStyle, setCompletedStyle] = useState("");
+  const styles = `${task.color} bg-blue-600 my-4 p-2 w-96 cursor-pointer`;
 
-  // Default styles
-  let styles = `bg-yellow-300 even:bg-blue-400`;
-  const [show, setShow] = useState("hidden");
+  const handleTaskClick = () => {
+    props.setSelectedTask(task.id);
+  };
 
-  const cards = items.map((item, i) => (
-    <div className={`${item.color} bg-blue-600 my-4 p-2 w-96 cursor-pointer`}>
+  // If task is selected apply this style
+  const applySelectedStyles = () => {
+    if (props.selectedTask === task.id) {
+      setSelectedStyle("border-b-2 border-red-600"); 
+    } else setSelectedStyle("");
+  };
+
+  useEffect(() => {
+    applySelectedStyles();
+  }, [props.selectedTask]);
+
+  const handleCompletedTask = () => {
+    setTaskCompleted(!taskCompleted);
+  }
+
+  // If task is completed apply this style
+  const applyCompletedStyles = () => {
+    if (taskCompleted) {
+      setCompletedStyle("line-through"); 
+    } else setCompletedStyle("");
+  };
+
+  useEffect(() => {
+    applyCompletedStyles();
+  }, [taskCompleted]);
+
+  return (
+    <div
+      onClick={handleTaskClick}
+      className={`${styles} ${selectedStyle} ${completedStyle}`}
+    >
       <div className="flex justify-between border-b-2 border-white">
-        <h3 className="text-lg font-bold text-white">{item.title}</h3>
-        <span className="text-lg font-bold text-white">0/{item.pomodoros}</span>
+        <h3 className="text-lg font-bold text-white">{task.title}</h3>
+        <span className="text-lg font-bold text-white">0/{task.pomodoros}</span>
       </div>
       <div className="shadow-inner">
-        <p className="my-4">{item.description}</p>
+        <p className="my-4">{task.description}</p>
       </div>
       <div className="flex justify-end">
         <button className="w-6 mr-4 text-white">
           <EditIcon />
         </button>
-        <button className="px-4 py-2 bg-green-600 rounded">Done</button>
+        <button onClick={handleCompletedTask} className="px-4 py-2 bg-green-600 rounded">Done</button>
       </div>
     </div>
+  );
+}
+
+function TaskCards(props) {
+  // Default styles
+  let styles = `bg-yellow-300 even:bg-blue-400`;
+  const [show, setShow] = useState("hidden");
+  const [selectedTask, setSelectedTask] = useState("");
+
+  const cards = props.tasks.map((task, key) => (
+    <TaskCard
+      selectedTask={selectedTask}
+      setSelectedTask={setSelectedTask}
+      key={key}
+      task={task}
+    />
   ));
 
   const toggle = () => {
@@ -93,24 +143,14 @@ function Tab(props) {
 
 function Tabs(props) {
   // States
-  const [selected, setSelected] = useState(props.selectedByDefault);
+  const [selectedTab, setSelectedTab] = useState(props.selectedByDefault);
   let subTabs = [];
   let tasks = [];
 
   const tabs = props.tabs.map((item, i) => {
-    // Save SubTabs
-    // subTabs.push(
-    //   <SubTabs
-    //     key={item.id}
-    //     id={item.id}
-    //     selected={selected}
-    //     items={item.subTabs}
-    //   />
-    // );
-
     // Save Tasks
     tasks.push(
-      <TaskCards id={item.id} selected={selected} items={item.tasks} />
+      <TaskCards id={item.id} selected={selectedTab} tasks={item.tasks} />
     );
 
     return (
@@ -118,8 +158,8 @@ function Tabs(props) {
         title={item.tab}
         key={item.tab}
         id={item.id}
-        selected={selected}
-        setSelected={setSelected}
+        selected={selectedTab}
+        setSelected={setSelectedTab}
       />
     );
   });
@@ -135,34 +175,10 @@ function Tabs(props) {
   );
 }
 
-function Tasks() {
-  const taskSample = {
-    selected: false,
-    title: "Start development of pomodoro app",
-    description:
-      "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
-    pomodoros: 3,
-    color: "#333",
-    completed: false,
-  };
-  const tabs = [
-    {
-      id: "pending-tasks",
-      tab: "Pending Tasks",
-      subTabs: ["Today", "Tomorrow"],
-      tasks: [taskSample, taskSample],
-    },
-    {
-      id: "completed-tasks",
-      tab: "Completed Tasks",
-      subTabs: ["Today", "Tomorrow"],
-      tasks: [taskSample, taskSample],
-    },
-  ];
-
+function Tasks(props) {
   return (
     <div className="p-4 mt-4 bg-zinc-900">
-      <Tabs selectedByDefault="pending-tasks" tabs={tabs} />
+      <Tabs selectedByDefault="pending-tasks" tabs={props.tasks} />
     </div>
   );
 }
