@@ -2,23 +2,27 @@ import { useState, useEffect } from "react";
 // Icons
 import { ReactComponent as EditIcon } from "../icons/edit-icon.svg";
 
+function TaskEditor(props) {
+  return <div>Editor</div>;
+}
+
 function TaskCard(props) {
-  const task = props.task;
   // States
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompleted, setTaskCompleted] = useState(false);
   const [completedStyle, setCompletedStyle] = useState("");
-  const styles = `${task.color} bg-blue-600 my-4 p-2 w-96 cursor-pointer`;
+  const [openEditor, setOpenEditor] = useState(false);
+  const styles = `${props.task.color} bg-blue-600 my-4 p-2 w-96 cursor-pointer`;
 
-  const handleTaskClick = () => {
-    props.setSelectedTask(task.id);
+  const handleTaskClick = (e) => {
+    props.setSelectedTask(props.task.id);
   };
 
   // If task is selected apply this style
   const applySelectedStyles = () => {
-    if (props.selectedTask === task.id) {
-      setSelectedStyle("border-b-2 border-red-600"); 
-    } else setSelectedStyle("");
+    if (props.selectedTask === props.task.id) {
+      setSelectedStyle("border-b-2 border-red-600");
+    } else setSelectedStyle("border-b-2 border-gray-600");
   };
 
   useEffect(() => {
@@ -27,12 +31,12 @@ function TaskCard(props) {
 
   const handleCompletedTask = () => {
     setTaskCompleted(!taskCompleted);
-  }
+  };
 
   // If task is completed apply this style
   const applyCompletedStyles = () => {
     if (taskCompleted) {
-      setCompletedStyle("line-through"); 
+      setCompletedStyle("line-through");
     } else setCompletedStyle("");
   };
 
@@ -40,26 +44,42 @@ function TaskCard(props) {
     applyCompletedStyles();
   }, [taskCompleted]);
 
-  return (
-    <div
-      onClick={handleTaskClick}
-      className={`${styles} ${selectedStyle} ${completedStyle}`}
-    >
-      <div className="flex justify-between border-b-2 border-white">
-        <h3 className="text-lg font-bold text-white">{task.title}</h3>
-        <span className="text-lg font-bold text-white">0/{task.pomodoros}</span>
+  const handleEditTask = () => {
+    // Open task editor
+    setOpenEditor(!openEditor);
+  };
+
+  const task = (
+    <div className={`${styles} ${selectedStyle}`}>
+      <div
+        onClick={handleTaskClick}
+        className="flex justify-between border-b-2 border-white"
+      >
+        <h3 className={`text-lg font-bold text-white ${completedStyle}`}>
+          {props.task.title}
+        </h3>
+        <span className="text-lg font-bold text-white">
+          0/{props.task.pomodoros}
+        </span>
       </div>
-      <div className="shadow-inner">
-        <p className="my-4">{task.description}</p>
+      <div onClick={handleTaskClick} className="shadow-inner">
+        <p className="my-4">{props.task.description}</p>
       </div>
       <div className="flex justify-end">
-        <button className="w-6 mr-4 text-white">
+        <button onClick={handleEditTask} className="w-6 mr-4 text-white">
           <EditIcon />
         </button>
-        <button onClick={handleCompletedTask} className="px-4 py-2 bg-green-600 rounded">Done</button>
+        <button
+          onClick={handleCompletedTask}
+          className="px-4 py-2 bg-green-600 rounded"
+        >
+          Done
+        </button>
       </div>
     </div>
   );
+
+  return openEditor ? <TaskEditor /> : task;
 }
 
 function TaskCards(props) {
@@ -144,14 +164,14 @@ function Tab(props) {
 function Tabs(props) {
   // States
   const [selectedTab, setSelectedTab] = useState(props.selectedByDefault);
-  let subTabs = [];
   let tasks = [];
 
   const tabs = props.tabs.map((item, i) => {
     // Save Tasks
-    tasks.push(
+    const task = (
       <TaskCards id={item.id} selected={selectedTab} tasks={item.tasks} />
     );
+    tasks.push(task);
 
     return (
       <Tab
@@ -167,8 +187,6 @@ function Tabs(props) {
   return (
     <div className="">
       <ul className="flex">{tabs}</ul>
-      {/* Tab content */}
-      {subTabs}
       {/* List of tasks */}
       {tasks}
     </div>

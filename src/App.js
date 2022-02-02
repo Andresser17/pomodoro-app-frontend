@@ -7,18 +7,36 @@ import SiteLogo from "./components/SiteLogo";
 import UserLogo from "./components/UserLogo";
 
 function App() {
-  const taskSample = {
+  const pending = {
     id: "0",
-    title: "Start development of pomodoro app",
+    title: "Pending - Start development of pomodoro app",
     description:
       "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
     pomodoros: 3,
     color: "#333",
+    completed: false,
   };
-  const taskSamples = [];
+
+  const pendingTasks = [];
   for (let i = 0; i < 5; i++) {
     let newId = String(i);
-    taskSamples.push({...taskSample, id: newId}) 
+    pendingTasks.push({...pending, id: newId}) 
+  }
+
+  const completed = {
+    id: "0",
+    title: "Completed - Start development of pomodoro app",
+    description:
+      "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
+    pomodoros: 3,
+    color: "#333",
+    completed: true,
+  };
+
+  const completedTasks = [];
+  for (let i = 0; i < 5; i++) {
+    let newId = String(i);
+    completedTasks.push({...completed, id: newId}) 
   }
 
   return (
@@ -41,14 +59,14 @@ function App() {
               id: "pending-tasks",
               tab: "Pending Tasks",
               subTabs: ["Today", "Tomorrow"],
-              tasks: [...taskSamples],
+              tasks: [...pendingTasks],
               default: true,
             },
             {
               id: "completed-tasks",
               tab: "Completed Tasks",
               subTabs: ["Today", "Tomorrow"],
-              tasks: [...taskSamples],
+              tasks: [...completedTasks],
             },
           ]}
         />
