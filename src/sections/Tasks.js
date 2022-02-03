@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
+import { useReactiveVar } from "@apollo/client";
 // Icons
 import { ReactComponent as EditIcon } from "../icons/edit-icon.svg";
+// Store
+import { selectedTaskVar } from "../cache";
 
 function TaskEditor(props) {
   return <div>Editor</div>;
@@ -14,6 +17,7 @@ function TaskCard(props) {
   const [openEditor, setOpenEditor] = useState(false);
   const styles = `${props.task.color} bg-blue-600 my-4 p-2 w-96 cursor-pointer`;
 
+  // If user click card, call this
   const handleTaskClick = (e) => {
     props.setSelectedTask(props.task.id);
   };
@@ -59,7 +63,7 @@ function TaskCard(props) {
           {props.task.title}
         </h3>
         <span className="text-lg font-bold text-white">
-          0/{props.task.pomodoros}
+          {props.task.completedPomodoros}/{props.task.expectedPomodoros}
         </span>
       </div>
       <div onClick={handleTaskClick} className="shadow-inner">
@@ -86,12 +90,14 @@ function TaskCards(props) {
   // Default styles
   let styles = `bg-yellow-300 even:bg-blue-400`;
   const [show, setShow] = useState("hidden");
-  const [selectedTask, setSelectedTask] = useState("");
+  // const [selectedTask, setSelectedTask] = useState("");
+  // Get selected task from store
+  const selectedTask = useReactiveVar(selectedTaskVar);
 
   const cards = props.tasks.map((task, key) => (
     <TaskCard
       selectedTask={selectedTask}
-      setSelectedTask={setSelectedTask}
+      setSelectedTask={selectedTaskVar}
       key={key}
       task={task}
     />

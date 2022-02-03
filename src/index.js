@@ -5,28 +5,28 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import {
   ApolloClient,
-  InMemoryCache,
   ApolloProvider,
   useQuery,
   gql,
 } from "@apollo/client";
+import { cache } from "./cache";
 
 const client = new ApolloClient({
   uri: "https://48p1r2roz4.sse.codesandbox.io",
-  cache: new InMemoryCache(),
+  cache: cache,
 });
 
-client
-  .query({
-    query: gql`
-      query GetRates {
-        rates(currency: "USD") {
-          currency
-        }
-      }
-    `,
-  })
-  .then((result) => console.log(result));
+// client
+//   .query({
+//     query: gql`
+//       query GetRates {
+//         rates(currency: "USD") {
+//           currency
+//         }
+//       }
+//     `,
+//   })
+//   .then((result) => console.log(result));
 
 ReactDOM.render(
   <ApolloProvider client={client}>

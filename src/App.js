@@ -12,7 +12,8 @@ function App() {
     title: "Pending - Start development of pomodoro app",
     description:
       "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
-    pomodoros: 3,
+    expectedPomodoros: 3,
+    completedPomodoros: 0,
     color: "#333",
     completed: false,
   };
@@ -28,7 +29,8 @@ function App() {
     title: "Completed - Start development of pomodoro app",
     description:
       "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
-    pomodoros: 3,
+    expectedPomodoros: 3,
+    completedPomodoros: 3,
     color: "#333",
     completed: true,
   };
@@ -48,7 +50,7 @@ function App() {
       <div className="flex flex-col items-center py-4">
         <Timer
           modes={[
-            { mode: "work", remainTime: 60, default: true },
+            { mode: "work", remainTime: 5, default: true },
             { mode: "short-break", remainTime: 5 },
             { mode: "long-break", remainTime: 20 },
           ]}
