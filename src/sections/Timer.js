@@ -25,7 +25,7 @@ function useInterval(callback, delay) {
 
 function CounterButton(props) {
   // Convert mode to name
-  const name = props.mode
+  const name = props.mode.mode
     .replace("-", " ")
     .split(" ")
     .map((word) => {
@@ -48,13 +48,8 @@ function CounterToggle(props) {
     props.setCurrentMode(mode);
   };
 
-  const buttons = props.modes.map((item) => {
-    return (
-      <CounterButton
-        toggleModes={toggleModes}
-        mode={item.mode}
-      />
-    );
+  const buttons = props.modes.map((mode) => {
+    return <CounterButton toggleModes={toggleModes} mode={mode} />;
   });
 
   return <div className="flex justify-around p-2 bg-white/10">{buttons}</div>;
@@ -82,10 +77,8 @@ function Timer(props) {
   // Remain time in minutes
   const [remainTime, setRemainTime] = useState(0);
   // Toggle between different Pomodoro modes.
-  const [currentMode, setCurrentMode] = useState("");
+  const [currentMode, setCurrentMode] = useState({});
   const [startCount, setStartCount] = useState(false);
-  // Track if pomodoro is completed
-  const [completedPomodoro, setCompletedPomodoro] = useState(false);
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
 
@@ -94,41 +87,59 @@ function Timer(props) {
     setStartCount(!startCount);
   };
 
-  // Set all values of every mode
-  const toggleModes = () => {
-    // Iterate in modes
-    props.modes.forEach((item, i) => {
+  const setModeValues = () => {
+    for (let item of props.modes) {
       // Set default mode
-      if (currentMode.length === 0 && item?.default) {
-        setCurrentMode(item.mode);
+      if (Object.keys(currentMode).length === 0 && item?.default) {
+        setCurrentMode(item);
+        // setRemainTime(item.remainTime)
+        break;
       }
 
       // Set user selected mode
-      if (item.mode === currentMode) {
+      if (item.mode === currentMode.mode) {
         // Convert time to minutes expressed in seconds
         // setRemainTime(item.remainTime * 60);
         setRemainTime(item.remainTime);
-        setCompletedPomodoro(false);
-        return;
+        break;
       }
-    });
+    }
   };
 
   useEffect(() => {
-    toggleModes();
+    setModeValues();
   }, [currentMode]);
 
-  // Add completed pomodoros to selected task
-  const addCompletedPomodoros = () => {};
+  // Toggle mode when pomodoro is completed
+  const toggleModes = () => {
+    for (let i = 0; i < props.modes.length; i++) {
+      let mode = props.modes[i];
+      if (mode.mode === currentMode.mode && props.modes[i + 1] !== undefined) {
+        setCurrentMode(props.modes[i + 1]);
+        break;
+      }
 
-  useEffect(() => {
-    addCompletedPomodoros();
-  }, [completedPomodoro]);
+      if (props.modes[i + 1] === undefined) {
+        setCurrentMode(props.modes[0]);
+        break;
+      }
+    }
+  };
+
+  // Play alarm
+  const playAlarm = () => {
+
+  }
 
   const countdown = () => {
+    // If time is out
     if (remainTime === 0) {
-      setCompletedPomodoro(true);
+      toggleModes();
       toggle();
+      // Add completed pomodoro to selected task
+      if (currentMode.default) {
+        selectedTask?.addCompletedPomodoro();
+      } 
       return;
     }
 
@@ -140,10 +151,7 @@ function Timer(props) {
 
   return (
     <div className="flex flex-col justify-center p-4 text-white rounded bg-zinc-900 w-96">
-      <CounterToggle
-        modes={props.modes}
-        setCurrentMode={setCurrentMode}
-      />
+      <CounterToggle modes={props.modes} setCurrentMode={setCurrentMode} />
       <Counter time={remainTime} />
       <button onClick={toggle} className="p-2 text-xl bg-blue-600 rounded">
         Start/Stop

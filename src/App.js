@@ -8,7 +8,7 @@ import UserLogo from "./components/UserLogo";
 
 function App() {
   const pending = {
-    id: "0",
+    id: "pen-",
     title: "Pending - Start development of pomodoro app",
     description:
       "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
@@ -20,12 +20,12 @@ function App() {
 
   const pendingTasks = [];
   for (let i = 0; i < 5; i++) {
-    let newId = String(i);
+    let newId = `${pending.id}${String(i)}`;
     pendingTasks.push({...pending, id: newId}) 
   }
 
   const completed = {
-    id: "0",
+    id: "com-",
     title: "Completed - Start development of pomodoro app",
     description:
       "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
@@ -37,7 +37,7 @@ function App() {
 
   const completedTasks = [];
   for (let i = 0; i < 5; i++) {
-    let newId = String(i);
+    let newId = `${completed.id}${String(i)}`;
     completedTasks.push({...completed, id: newId}) 
   }
 
@@ -50,9 +50,9 @@ function App() {
       <div className="flex flex-col items-center py-4">
         <Timer
           modes={[
-            { mode: "work", remainTime: 5, default: true },
+            { mode: "work", remainTime: 3, default: true },
             { mode: "short-break", remainTime: 5 },
-            { mode: "long-break", remainTime: 20 },
+            { mode: "long-break", remainTime: 7 },
           ]}
         />
         <Tasks

@@ -11,6 +11,10 @@ function TaskEditor(props) {
 
 function TaskCard(props) {
   // States
+  const [completedPomodoros, setCompletedPomodoros] = useState(
+    props.task.completedPomodoros
+  );
+  // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompleted, setTaskCompleted] = useState(false);
   const [completedStyle, setCompletedStyle] = useState("");
@@ -19,12 +23,15 @@ function TaskCard(props) {
 
   // If user click card, call this
   const handleTaskClick = (e) => {
-    props.setSelectedTask(props.task.id);
+    props.setSelectedTask({
+      id: props.task.id,
+      addCompletedPomodoro: addCompletedPomodoro
+    });
   };
 
   // If task is selected apply this style
   const applySelectedStyles = () => {
-    if (props.selectedTask === props.task.id) {
+    if (props.selectedTask.id === props.task.id) {
       setSelectedStyle("border-b-2 border-red-600");
     } else setSelectedStyle("border-b-2 border-gray-600");
   };
@@ -48,6 +55,11 @@ function TaskCard(props) {
     applyCompletedStyles();
   }, [taskCompleted]);
 
+  // Add completed pomodoro to task
+  const addCompletedPomodoro = () => {
+    setCompletedPomodoros(completedPomodoros + 1);
+  };
+
   const handleEditTask = () => {
     // Open task editor
     setOpenEditor(!openEditor);
@@ -63,7 +75,7 @@ function TaskCard(props) {
           {props.task.title}
         </h3>
         <span className="text-lg font-bold text-white">
-          {props.task.completedPomodoros}/{props.task.expectedPomodoros}
+          {completedPomodoros}/{props.task.expectedPomodoros}
         </span>
       </div>
       <div onClick={handleTaskClick} className="shadow-inner">

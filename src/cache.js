@@ -1,8 +1,8 @@
 import { makeVar, InMemoryCache } from "@apollo/client";
 
 export const selectedTaskVar = makeVar({
-  taskId: "",
-  completedPomodoro: false,
+  id: "",
+  addCompletedPomodoro: undefined,
 });
 
 export const cache = new InMemoryCache({
