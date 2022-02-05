@@ -1,12 +1,55 @@
 import { useState, useEffect } from "react";
 import { useReactiveVar } from "@apollo/client";
+// React-quill
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 // Icons
 import { ReactComponent as EditIcon } from "../icons/edit-icon.svg";
 // Store
 import { selectedTaskVar } from "../cache";
 
 function TaskEditor(props) {
-  return <div>Editor</div>;
+  const [value, setValue] = useState("");
+
+  const handleOnChange = (val) => {
+    setValue(val);
+  };
+
+  return (
+    <div>
+      {/* Title input */}
+      <input className="w-full p-2" />
+      
+      <ReactQuill
+        className="w-full mt-4 overflow-auto"
+        theme="snow"
+        value={value}
+        onChange={handleOnChange}
+      />
+
+      {/* Add or substract pomodoros */}
+      <div className="flex items-center mt-4">
+        <input type="number" className="p-2 w-14" />
+        <span className="mx-2">/</span>
+        <input type="number" className="p-2 w-14" />
+      </div>
+
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={() => props.handleEditTask(false)}
+          className="px-2 py-1 text-white bg-red-600 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => props.handleEditTask(true)}
+          className="px-4 py-2 bg-green-600 rounded"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function TaskCard(props) {
@@ -19,13 +62,13 @@ function TaskCard(props) {
   const [taskCompleted, setTaskCompleted] = useState(false);
   const [completedStyle, setCompletedStyle] = useState("");
   const [openEditor, setOpenEditor] = useState(false);
-  const styles = `${props.task.color} bg-blue-600 my-4 p-2 w-96 cursor-pointer`;
+  const styles = `${props.task.color} bg-blue-600 my-4 p-2 w-96`;
 
   // If user click card, call this
   const handleTaskClick = (e) => {
     props.setSelectedTask({
       id: props.task.id,
-      addCompletedPomodoro: addCompletedPomodoro
+      addCompletedPomodoro: addCompletedPomodoro,
     });
   };
 
@@ -60,13 +103,18 @@ function TaskCard(props) {
     setCompletedPomodoros(completedPomodoros + 1);
   };
 
-  const handleEditTask = () => {
-    // Open task editor
+  const handleEditTask = (save) => {
+    // Save or discard changes
+    if (save) {
+      console.log(save);
+    }
+
+    // Toggle task editor
     setOpenEditor(!openEditor);
   };
 
   const task = (
-    <div className={`${styles} ${selectedStyle}`}>
+    <div className="cursor-pointer">
       <div
         onClick={handleTaskClick}
         className="flex justify-between border-b-2 border-white"
@@ -81,8 +129,11 @@ function TaskCard(props) {
       <div onClick={handleTaskClick} className="shadow-inner">
         <p className="my-4">{props.task.description}</p>
       </div>
-      <div className="flex justify-end">
-        <button onClick={handleEditTask} className="w-6 mr-4 text-white">
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={() => handleEditTask(false)}
+          className="w-6 mr-4 text-white"
+        >
           <EditIcon />
         </button>
         <button
@@ -95,7 +146,11 @@ function TaskCard(props) {
     </div>
   );
 
-  return openEditor ? <TaskEditor /> : task;
+  return (
+    <div className={`${styles} ${selectedStyle}`}>
+      {openEditor ? <TaskEditor handleEditTask={handleEditTask} /> : task}
+    </div>
+  );
 }
 
 function TaskCards(props) {
