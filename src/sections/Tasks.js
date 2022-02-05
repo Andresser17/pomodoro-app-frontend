@@ -19,9 +19,9 @@ function TaskEditor(props) {
     <div>
       {/* Title input */}
       <input className="w-full p-2" />
-      
+
       <ReactQuill
-        className="w-full mt-4 overflow-auto"
+        className="w-full mt-4"
         theme="snow"
         value={value}
         onChange={handleOnChange}
@@ -33,7 +33,6 @@ function TaskEditor(props) {
         <span className="mx-2">/</span>
         <input type="number" className="p-2 w-14" />
       </div>
-
       <div className="flex justify-end mt-4">
         <button
           onClick={() => props.handleEditTask(false)}
@@ -155,7 +154,7 @@ function TaskCard(props) {
 
 function TaskCards(props) {
   // Default styles
-  let styles = `bg-yellow-300 even:bg-blue-400`;
+  let styles = ``;
   const [show, setShow] = useState("hidden");
   // const [selectedTask, setSelectedTask] = useState("");
   // Get selected task from store

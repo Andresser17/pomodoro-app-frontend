@@ -4,7 +4,7 @@ import Timer from "./sections/Timer";
 import TopPanel from "./sections/TopPanel";
 // Components
 import SiteLogo from "./components/SiteLogo";
-import UserLogo from "./components/UserLogo";
+import UserOptions from "./components/UserOptions";
 
 function App() {
   const pending = {
@@ -21,7 +21,7 @@ function App() {
   const pendingTasks = [];
   for (let i = 0; i < 5; i++) {
     let newId = `${pending.id}${String(i)}`;
-    pendingTasks.push({...pending, id: newId}) 
+    pendingTasks.push({ ...pending, id: newId });
   }
 
   const completed = {
@@ -38,14 +38,19 @@ function App() {
   const completedTasks = [];
   for (let i = 0; i < 5; i++) {
     let newId = `${completed.id}${String(i)}`;
-    completedTasks.push({...completed, id: newId}) 
+    completedTasks.push({ ...completed, id: newId });
   }
 
   return (
     <main className="min-h-screen bg-slate-400">
       <TopPanel>
         <SiteLogo />
-        <UserLogo />
+        <UserOptions
+          buttons={[
+            { text: "Settings", handleClick: () => console.log("hello") },
+            { text: "Logout", handleClick: () => console.log("hello") },
+          ]}
+        />
       </TopPanel>
       <div className="flex flex-col items-center py-4">
         <Timer
