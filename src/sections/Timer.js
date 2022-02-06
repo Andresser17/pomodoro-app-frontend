@@ -48,8 +48,8 @@ function CounterToggle(props) {
     props.setCurrentMode(mode);
   };
 
-  const buttons = props.modes.map((mode) => {
-    return <CounterButton toggleModes={toggleModes} mode={mode} />;
+  const buttons = props.modes.map((mode, i) => {
+    return <CounterButton key={i} toggleModes={toggleModes} mode={mode} />;
   });
 
   return <div className="flex justify-around p-2 bg-white/10">{buttons}</div>;

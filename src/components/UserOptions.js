@@ -4,20 +4,19 @@ import { ReactComponent as SampleUser } from "../icons/sampleUser.svg";
 
 function DropdownButton(props) {
   return (
-    <a
+    <button
       onClick={props.handleClick}
-      href="#"
-      className="block px-4 py-2 text-gray-900 rounded transition-colors duration-200 text-normal hover:bg-purple-500 hover:text-white"
+      className="block w-full px-4 py-2 text-left text-gray-900 rounded transition-colors duration-200 text-normal hover:bg-purple-500 hover:text-white"
     >
       {props.text}
-    </a>
+    </button>
   );
 }
 
 function DropdownBody(props) {
   const styles = `absolute right-0 w-40 min-h-[2rem] mt-2 bg-white border rounded shadow-xl z-10`;
 
-  const buttons = props.buttons?.map((button) => {
+  const buttons = props.buttons?.map((button, i) => {
     // Call parent provided function
     // and user provided function
     const handleClick = () => {
@@ -25,7 +24,9 @@ function DropdownBody(props) {
       button.handleClick();
     };
 
-    return <DropdownButton handleClick={handleClick} text={button.text} />;
+    return (
+      <DropdownButton key={i} handleClick={handleClick} text={button.text} />
+    );
   });
 
   return <div className={`${props.toggleShow} ${styles}`}>{buttons}</div>;

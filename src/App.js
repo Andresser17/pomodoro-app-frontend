@@ -1,3 +1,4 @@
+import { useState } from "react";
 // Sections
 import Tasks from "./sections/Tasks";
 import Timer from "./sections/Timer";
@@ -5,8 +6,22 @@ import TopPanel from "./sections/TopPanel";
 // Components
 import SiteLogo from "./components/SiteLogo";
 import UserOptions from "./components/UserOptions";
+// User modals
+import UserAuth from "./components/UserAuth";
+import UserSettings from "./components/UserSettings";
 
 function App() {
+  // Set the modal id
+  const [modalToOpen, setModalToOpen] = useState(undefined);
+  const [userIsLogged, setUserIsLogged] = useState(false);
+
+  // Close open modal
+  const handleCloseModal = () => {
+    setModalToOpen(undefined);
+  };
+
+  const logoutUser = () => {};
+
   const pending = {
     id: "pen-",
     title: "Pending - Start development of pomodoro app",
@@ -41,16 +56,36 @@ function App() {
     completedTasks.push({ ...completed, id: newId });
   }
 
+  const userOptions = (
+    <UserOptions
+      buttons={[
+        {
+          text: "Settings",
+          handleClick: () => setModalToOpen(<UserSettings />),
+        },
+        { text: "Logout", handleClick: () => console.log("logout") },
+      ]}
+    />
+  );
+
   return (
     <main className="min-h-screen bg-slate-400">
+      {/* User selected modal */}
+      {modalToOpen}
       <TopPanel>
         <SiteLogo />
-        <UserOptions
-          buttons={[
-            { text: "Settings", handleClick: () => console.log("hello") },
-            { text: "Logout", handleClick: () => console.log("hello") },
-          ]}
-        />
+        {/* If user is logged show UserOptions */}
+        {userIsLogged ? (
+          userOptions
+        ) : (
+          <button
+            onClick={() =>
+              setModalToOpen(<UserAuth handleCloseModal={handleCloseModal} />)
+            }
+          >
+            Login
+          </button>
+        )}
       </TopPanel>
       <div className="flex flex-col items-center py-4">
         <Timer

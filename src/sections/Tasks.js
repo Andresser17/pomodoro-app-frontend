@@ -56,11 +56,12 @@ function TaskCard(props) {
   const [completedPomodoros, setCompletedPomodoros] = useState(
     props.task.completedPomodoros
   );
+  const [disabledCard, setDisabledCard] = useState(false);
+  const [openEditor, setOpenEditor] = useState(false);
   // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
-  const [taskCompleted, setTaskCompleted] = useState(false);
-  const [completedStyle, setCompletedStyle] = useState("");
-  const [openEditor, setOpenEditor] = useState(false);
+  const [taskCompleted, setTaskCompleted] = useState("");
+  const [disabledCardStyles, setDisabledCardStyles] = useState("");
   const styles = `${props.task.color} bg-blue-600 my-4 p-2 w-96`;
 
   // If user click card, call this
@@ -83,19 +84,21 @@ function TaskCard(props) {
   }, [props.selectedTask]);
 
   const handleCompletedTask = () => {
-    setTaskCompleted(!taskCompleted);
+    if (taskCompleted === "") {
+      setTaskCompleted("line-through");
+    } else setTaskCompleted("");
   };
 
   // If task is completed apply this style
-  const applyCompletedStyles = () => {
-    if (taskCompleted) {
-      setCompletedStyle("line-through");
-    } else setCompletedStyle("");
-  };
+  // const applyCompletedStyles = () => {
+  //   if (taskCompleted) {
+  //     setCompletedStyle("line-through");
+  //   } else setCompletedStyle("");
+  // };
 
-  useEffect(() => {
-    applyCompletedStyles();
-  }, [taskCompleted]);
+  // useEffect(() => {
+  //   applyCompletedStyles();
+  // }, [taskCompleted]);
 
   // Add completed pomodoro to task
   const addCompletedPomodoro = () => {
@@ -112,13 +115,25 @@ function TaskCard(props) {
     setOpenEditor(!openEditor);
   };
 
+  // If timer is started disable
+  // the possibility of change selected task
+  const toggleDisabledCard = () => {
+    if (disabledCardStyles === "cursor-pointer") {
+      setDisabledCardStyles("");
+    } else setDisabledCardStyles("cursor-pointer");
+  };
+
+  useEffect(() => {
+    toggleDisabledCard();
+  }, [disabledCard]);
+
   const task = (
-    <div className="cursor-pointer">
+    <div className={`${disabledCardStyles}`}>
       <div
         onClick={handleTaskClick}
         className="flex justify-between border-b-2 border-white"
       >
-        <h3 className={`text-lg font-bold text-white ${completedStyle}`}>
+        <h3 className={`text-lg font-bold text-white ${taskCompleted}`}>
           {props.task.title}
         </h3>
         <span className="text-lg font-bold text-white">
@@ -132,12 +147,14 @@ function TaskCard(props) {
         <button
           onClick={() => handleEditTask(false)}
           className="w-6 mr-4 text-white"
+          disabled={disabledCard}
         >
           <EditIcon />
         </button>
         <button
           onClick={handleCompletedTask}
           className="px-4 py-2 bg-green-600 rounded"
+          disabled={disabledCard}
         >
           Done
         </button>
@@ -241,7 +258,12 @@ function Tabs(props) {
   const tabs = props.tabs.map((item, i) => {
     // Save Tasks
     const task = (
-      <TaskCards id={item.id} selected={selectedTab} tasks={item.tasks} />
+      <TaskCards
+        key={item.tab}
+        id={item.id}
+        selected={selectedTab}
+        tasks={item.tasks}
+      />
     );
     tasks.push(task);
 
@@ -256,9 +278,16 @@ function Tabs(props) {
     );
   });
 
+  const handleAddTask = () => {
+  }
+
   return (
-    <div className="">
-      <ul className="flex">{tabs}</ul>
+    <div className="p-4 mt-4 overflow-auto min-h-48 max-h-[27rem] bg-zinc-900">
+      <div className="flex items-center justify-between">
+        <ul className="flex">{tabs}</ul>
+        {/* Add a new task */}
+        <button onClick={handleAddTask} className="px-4 py-2 bg-red-600">+ New Task</button>
+      </div>
       {/* List of tasks */}
       {tasks}
     </div>
@@ -267,8 +296,11 @@ function Tabs(props) {
 
 function Tasks(props) {
   return (
-    <div className="p-4 mt-4 bg-zinc-900">
+    <div>
       <Tabs selectedByDefault="pending-tasks" tabs={props.tasks} />
+      <div className="p-4 mt-4 text-white bg-zinc-900">
+        <span>Hello World</span>
+      </div>
     </div>
   );
 }
