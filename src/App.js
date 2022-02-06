@@ -13,7 +13,7 @@ import UserSettings from "./components/UserSettings";
 function App() {
   // Set the modal id
   const [modalToOpen, setModalToOpen] = useState(undefined);
-  const [userIsLogged, setUserIsLogged] = useState(false);
+  const [userIsLogged, setUserIsLogged] = useState(true);
 
   // Close open modal
   const handleCloseModal = () => {
@@ -68,6 +68,28 @@ function App() {
     />
   );
 
+  // Sign In and Sign Up buttons
+  const userAuth = (
+    <div>
+      <button
+        className="px-4 py-1 mr-4 bg-green-600 rounded"
+        onClick={() =>
+          setModalToOpen(<UserAuth handleCloseModal={handleCloseModal} />)
+        }
+      >
+        Sign In
+      </button>
+      <button
+        className="px-4 py-1 bg-blue-600 rounded"
+        onClick={() =>
+          setModalToOpen(<UserAuth signUp={true} handleCloseModal={handleCloseModal} />)
+        }
+      >
+        Sign Up
+      </button>
+    </div>
+  );
+
   return (
     <main className="min-h-screen bg-slate-400">
       {/* User selected modal */}
@@ -75,17 +97,7 @@ function App() {
       <TopPanel>
         <SiteLogo />
         {/* If user is logged show UserOptions */}
-        {userIsLogged ? (
-          userOptions
-        ) : (
-          <button
-            onClick={() =>
-              setModalToOpen(<UserAuth handleCloseModal={handleCloseModal} />)
-            }
-          >
-            Login
-          </button>
-        )}
+        {userIsLogged ? userOptions : userAuth}
       </TopPanel>
       <div className="flex flex-col items-center py-4">
         <Timer

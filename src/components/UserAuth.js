@@ -53,48 +53,29 @@ function AuthInput(props) {
   );
 }
 
-function AuthForm() {
+function FormSubmit(props) {
   return (
-    <form className="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8" action="#">
-      <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-        Sign in to our platform
-      </h3>
-      <AuthInput
-        labelText="Your email"
-        placeholder="name@company.com"
-        type="email"
-        name="email"
-      />
-      <AuthInput
-        labelText="Your password"
-        placeholder="••••••••"
-        type="password"
-        name="password"
-      />
-      <AuthRemember />
+    <button
+      type="submit"
+      className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    >
+      {props.text}
+    </button>
+  );
+}
 
-      <button
-        type="submit"
-        className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-      >
-        Login to your account
-      </button>
-
-      <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-        Not registered?{" "}
-        <a
-          href="#"
-          className="text-blue-700 hover:underline dark:text-blue-500"
-        >
-          Create account
-        </a>
-      </div>
+function AuthForm(props) {
+  return (
+    <form
+      onSubmit={props.onSubmit}
+      className="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8"
+    >
+      {props.children}
     </form>
   );
 }
 
 function CloseButton(props) {
-
   return (
     <div className="flex justify-end p-2">
       <button
@@ -108,6 +89,75 @@ function CloseButton(props) {
   );
 }
 
+function UserSignUp(props) {
+  return (
+    <AuthForm>
+      <AuthInput
+        labelText="Your email"
+        placeholder="name@company.com"
+        type="email"
+        name="email"
+      />
+      <AuthInput
+        labelText="Enter password"
+        placeholder="••••••••"
+        type="password"
+        name="password"
+      />
+      <AuthInput
+        labelText="Repeat password"
+        placeholder="••••••••"
+        type="password"
+        name="password"
+      />
+      <FormSubmit text="Register an account" />
+      <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
+        You have an account?{" "}
+        <a
+          href="#"
+          className="text-blue-700 hover:underline dark:text-blue-500"
+        >
+          Sign In
+        </a>
+      </div>
+    </AuthForm>
+  );
+}
+
+function UserSignIn(props) {
+  const handleOnSubmit = (e) => {
+    e.preventDefault();
+  };
+
+  return (
+    <AuthForm onSubmit={handleOnSubmit}>
+      <AuthInput
+        labelText="Your email"
+        placeholder="name@company.com"
+        type="email"
+        name="email"
+      />
+      <AuthInput
+        labelText="Your password"
+        placeholder="••••••••"
+        type="password"
+        name="password"
+      />
+      <AuthRemember />
+      <FormSubmit text="Login to your account" />
+      <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
+        Not registered?{" "}
+        <a
+          href="#"
+          className="text-blue-700 hover:underline dark:text-blue-500"
+        >
+          Create account
+        </a>
+      </div>
+    </AuthForm>
+  );
+}
+
 function UserAuth(props) {
   return (
     // Modal container
@@ -116,7 +166,7 @@ function UserAuth(props) {
       <div className="relative bg-white rounded-lg shadow w-[22rem] md:h-auto dark:bg-gray-700">
         {/* Close button */}
         <CloseButton handleCloseModal={props.handleCloseModal} />
-        <AuthForm />
+        {props.signUp ? <UserSignUp /> : <UserSignIn />}
       </div>
     </div>
   );
