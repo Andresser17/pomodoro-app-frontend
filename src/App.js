@@ -6,14 +6,24 @@ import TopPanel from "./sections/TopPanel";
 // Components
 import SiteLogo from "./components/SiteLogo";
 import UserOptions from "./components/UserOptions";
-// User modals
-import UserAuth from "./components/UserAuth";
-import UserSettings from "./components/UserSettings";
+// Modals
+import ModalContainer from "./modals/ModalContainer";
+import UserAuth from "./modals/UserAuth";
+import UserSettings from "./modals/UserSettings";
 
 function App() {
   // Set the modal id
   const [modalToOpen, setModalToOpen] = useState(undefined);
   const [userIsLogged, setUserIsLogged] = useState(true);
+
+  // Open a new modal
+  const handleOpenModal = (modal) => {
+    setModalToOpen(
+      <ModalContainer handleCloseModal={handleCloseModal}>
+        {modal}
+      </ModalContainer>
+    );
+  };
 
   // Close open modal
   const handleCloseModal = () => {
@@ -61,7 +71,7 @@ function App() {
       buttons={[
         {
           text: "Settings",
-          handleClick: () => setModalToOpen(<UserSettings />),
+          handleClick: () => handleOpenModal(<UserSettings />),
         },
         { text: "Logout", handleClick: () => console.log("logout") },
       ]}
@@ -73,17 +83,13 @@ function App() {
     <div>
       <button
         className="px-4 py-1 mr-4 bg-green-600 rounded"
-        onClick={() =>
-          setModalToOpen(<UserAuth handleCloseModal={handleCloseModal} />)
-        }
+        onClick={() => handleOpenModal(<UserAuth />)}
       >
         Sign In
       </button>
       <button
         className="px-4 py-1 bg-blue-600 rounded"
-        onClick={() =>
-          setModalToOpen(<UserAuth signUp={true} handleCloseModal={handleCloseModal} />)
-        }
+        onClick={() => handleOpenModal(<UserAuth signUp={true} />)}
       >
         Sign Up
       </button>

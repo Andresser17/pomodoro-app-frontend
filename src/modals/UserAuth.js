@@ -1,6 +1,3 @@
-// Icons
-import { ReactComponent as CloseIcon } from "../icons/close-icon.svg";
-
 function AuthRemember(props) {
   return (
     <div className="flex justify-between">
@@ -75,20 +72,6 @@ function AuthForm(props) {
   );
 }
 
-function CloseButton(props) {
-  return (
-    <div className="flex justify-end p-2">
-      <button
-        onClick={props.handleCloseModal}
-        type="button"
-        className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
-      >
-        <CloseIcon className="w-4 h-4" />
-      </button>
-    </div>
-  );
-}
-
 function UserSignUp(props) {
   return (
     <AuthForm>
@@ -108,7 +91,7 @@ function UserSignUp(props) {
         labelText="Repeat password"
         placeholder="••••••••"
         type="password"
-        name="password"
+        name="repeat-password"
       />
       <FormSubmit text="Register an account" />
       <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
@@ -159,17 +142,7 @@ function UserSignIn(props) {
 }
 
 function UserAuth(props) {
-  return (
-    // Modal container
-    <div className="fixed left-0 right-0 z-50 flex items-center justify-center h-full bg-black/60 top-4 md:inset-0">
-      {/* Modal content */}
-      <div className="relative bg-white rounded-lg shadow w-[22rem] md:h-auto dark:bg-gray-700">
-        {/* Close button */}
-        <CloseButton handleCloseModal={props.handleCloseModal} />
-        {props.signUp ? <UserSignUp /> : <UserSignIn />}
-      </div>
-    </div>
-  );
+  return props.signUp ? <UserSignUp /> : <UserSignIn />;
 }
 
 export default UserAuth;
