@@ -1,3 +1,6 @@
+// Components
+import Input from "../components/Input";
+
 function AuthRemember(props) {
   return (
     <div className="flex justify-between">
@@ -29,27 +32,6 @@ function AuthRemember(props) {
   );
 }
 
-function AuthInput(props) {
-  return (
-    <div>
-      <label
-        htmlFor={props.name}
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-      >
-        {props.labelText}
-      </label>
-      <input
-        type={props.type}
-        name={props.name}
-        id={props.name}
-        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-        placeholder={props.placeholder}
-        required=""
-      />
-    </div>
-  );
-}
-
 function FormSubmit(props) {
   return (
     <button
@@ -75,19 +57,19 @@ function AuthForm(props) {
 function UserSignUp(props) {
   return (
     <AuthForm>
-      <AuthInput
+      <Input
         labelText="Your email"
         placeholder="name@company.com"
         type="email"
         name="email"
       />
-      <AuthInput
+      <Input
         labelText="Enter password"
         placeholder="••••••••"
         type="password"
         name="password"
       />
-      <AuthInput
+      <Input
         labelText="Repeat password"
         placeholder="••••••••"
         type="password"
@@ -114,13 +96,13 @@ function UserSignIn(props) {
 
   return (
     <AuthForm onSubmit={handleOnSubmit}>
-      <AuthInput
+      <Input
         labelText="Your email"
         placeholder="name@company.com"
         type="email"
         name="email"
       />
-      <AuthInput
+      <Input
         labelText="Your password"
         placeholder="••••••••"
         type="password"
@@ -142,7 +124,11 @@ function UserSignIn(props) {
 }
 
 function UserAuth(props) {
-  return props.signUp ? <UserSignUp /> : <UserSignIn />;
+  return (
+    <div className="w-[22rem]">
+      {props.signUp ? <UserSignUp /> : <UserSignIn />}
+    </div>
+  );
 }
 
 export default UserAuth;

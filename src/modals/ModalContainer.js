@@ -20,7 +20,7 @@ function ModalContainer(props) {
     // Modal container
     <div className="fixed left-0 right-0 z-50 flex items-center justify-center h-full bg-black/60 top-4 md:inset-0">
       {/* Modal content */}
-      <div className="relative bg-white rounded-lg shadow w-[22rem] md:h-auto dark:bg-gray-700">
+      <div className="relative bg-white rounded-lg shadow w-fit md:h-auto dark:bg-gray-700">
         {/* Close button */}
         <CloseButton handleCloseModal={props.handleCloseModal} />
         {props.children}

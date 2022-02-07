@@ -1,0 +1,52 @@
+import { useState, useEffect } from "react";
+
+function Checkbox(props) {
+  const [checked, setChecked] = useState(false);
+  // Styles
+  const basicStyles =
+    "absolute block w-4 h-4 mt-1 ml-1 rounded-full shadow inset-y-0 left-0 focus-within:shadow-outline transition-transform duration-300 ease-in-out";
+  const uncheckedStyle = "bg-white";
+  const checkedStyle = "bg-purple-600 transform translate-x-full";
+  const [styles, setStyles] = useState("");
+
+  const handleChecked = () => {
+    setChecked(!checked);
+  };
+
+  // Toggle active/deactive style
+  const toggleStyles = () => {
+    if (checked) {
+      setStyles(`${basicStyles} ${checkedStyle}`);
+    } else setStyles(`${basicStyles} ${uncheckedStyle}`);
+  };
+
+  useEffect(() => {
+    // Apply styles after user clicked
+    toggleStyles();
+  }, [checked]);
+
+  return (
+    <div className="flex flex-col">
+      <label
+        htmlFor="checked"
+        className="inline-flex items-center justify-between mt-3"
+      >
+        <span className="text-xl">Unchecked</span>
+        <span className="relative cursor-pointer">
+          <span className="block w-10 h-6 bg-gray-400 rounded-full shadow-inner"></span>
+          <span className={`${styles}`}>
+            <input
+              id="checked"
+              type="checkbox"
+              checked={checked}
+              onChange={handleChecked}
+              className="absolute w-0 h-0 opacity-0"
+            />
+          </span>
+        </span>
+      </label>
+    </div>
+  );
+}
+
+export default Checkbox;
