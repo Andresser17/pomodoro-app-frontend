@@ -16,18 +16,6 @@ const client = new ApolloClient({
   cache: cache,
 });
 
-// client
-//   .query({
-//     query: gql`
-//       query GetRates {
-//         rates(currency: "USD") {
-//           currency
-//         }
-//       }
-//     `,
-//   })
-//   .then((result) => console.log(result));
-
 ReactDOM.render(
   <ApolloProvider client={client}>
     <App />

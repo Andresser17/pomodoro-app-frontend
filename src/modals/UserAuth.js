@@ -58,25 +58,28 @@ function UserSignUp(props) {
   return (
     <AuthForm>
       <Input
-        labelText="Your email"
+        dim={{ input: "w-full" }}
+        labelText={{ text: "Your email" }}
         placeholder="name@company.com"
         type="email"
         name="email"
       />
       <Input
-        labelText="Enter password"
+        dim={{ input: "w-full" }}
+        labelText={{ text: "Your password" }}
         placeholder="••••••••"
         type="password"
         name="password"
       />
       <Input
-        labelText="Repeat password"
+        dim={{ input: "w-full" }}
+        labelText={{ text: "Repeat password" }}
         placeholder="••••••••"
         type="password"
         name="repeat-password"
       />
       <FormSubmit text="Register an account" />
-      <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
+      <div className="text-sm font-medium">
         You have an account?{" "}
         <a
           href="#"
@@ -97,20 +100,22 @@ function UserSignIn(props) {
   return (
     <AuthForm onSubmit={handleOnSubmit}>
       <Input
-        labelText="Your email"
+        dim={{ input: "w-full" }}
+        labelText={{ text: "Your email" }}
         placeholder="name@company.com"
         type="email"
         name="email"
       />
       <Input
-        labelText="Your password"
+        dim={{ input: "w-full" }}
+        labelText={{ text: "Your password" }}
         placeholder="••••••••"
         type="password"
         name="password"
       />
       <AuthRemember />
       <FormSubmit text="Login to your account" />
-      <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
+      <div className="text-sm font-medium">
         Not registered?{" "}
         <a
           href="#"
@@ -125,7 +130,7 @@ function UserSignIn(props) {
 
 function UserAuth(props) {
   return (
-    <div className="w-[22rem]">
+    <div className="w-[22rem] text-gray-900 dark:text-gray-300">
       {props.signUp ? <UserSignUp /> : <UserSignIn />}
     </div>
   );

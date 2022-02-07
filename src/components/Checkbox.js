@@ -10,6 +10,7 @@ function Checkbox(props) {
   const [styles, setStyles] = useState("");
 
   const handleChecked = () => {
+    // Only active if click inside checkbox container
     setChecked(!checked);
   };
 
@@ -28,15 +29,16 @@ function Checkbox(props) {
   return (
     <div className="flex flex-col">
       <label
-        htmlFor="checked"
+        htmlFor={props.id}
         className="inline-flex items-center justify-between mt-3"
       >
-        <span className="text-xl">Unchecked</span>
+        <span className={props.text.style}>{props.text.text}</span>
+        {/* Checkbox container */}
         <span className="relative cursor-pointer">
           <span className="block w-10 h-6 bg-gray-400 rounded-full shadow-inner"></span>
           <span className={`${styles}`}>
             <input
-              id="checked"
+              id={props.id}
               type="checkbox"
               checked={checked}
               onChange={handleChecked}

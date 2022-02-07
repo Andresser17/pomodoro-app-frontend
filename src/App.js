@@ -10,11 +10,13 @@ import UserOptions from "./components/UserOptions";
 import ModalContainer from "./modals/ModalContainer";
 import UserAuth from "./modals/UserAuth";
 import UserSettings from "./modals/UserSettings";
+// Icons
+import { ReactComponent as SettingsIcon } from "./icons/settings-icon.svg";
 
 function App() {
-  // Set the modal id
+  // Set the modal component
   const [modalToOpen, setModalToOpen] = useState(undefined);
-  const [userIsLogged, setUserIsLogged] = useState(true);
+  const [userIsLogged, setUserIsLogged] = useState(false);
 
   // Open a new modal
   const handleOpenModal = (modal) => {
@@ -70,6 +72,7 @@ function App() {
     <UserOptions
       buttons={[
         {
+          icon: <SettingsIcon />,
           text: "Settings",
           handleClick: () => handleOpenModal(<UserSettings />),
         },

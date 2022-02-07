@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 // Icons
-import { ReactComponent as SampleUser } from "../icons/sampleUser.svg";
+import { ReactComponent as SampleUser } from "../icons/sample-user.svg";
 
 function DropdownButton(props) {
   return (
     <button
       onClick={props.handleClick}
-      className="block w-full px-4 py-2 text-left text-gray-900 rounded transition-colors duration-200 text-normal hover:bg-purple-500 hover:text-white"
+      className="flex justify-end items-center w-full px-4 py-2 text-left text-gray-900 rounded transition-colors duration-200 text-normal hover:bg-purple-500 hover:text-white"
     >
+      <span className="block w-4 h-4 mr-2 hover:text-white">
+        {props.children}
+      </span>
       {props.text}
     </button>
   );
@@ -25,7 +28,9 @@ function DropdownBody(props) {
     };
 
     return (
-      <DropdownButton key={i} handleClick={handleClick} text={button.text} />
+      <DropdownButton key={i} handleClick={handleClick} text={button.text}>
+        {button.icon}
+      </DropdownButton>
     );
   });
 
