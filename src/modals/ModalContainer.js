@@ -17,20 +17,6 @@ function CloseButton(props) {
 }
 
 function ModalContainer(props) {
-  const basicStyles = "fixed left-0 top-0 right-0 bottom-0 overflow-auto z-50 h-full bg-black/60 md:inset-0 transition-all duration-300 ease-in-out"
-  const hiddenStyle = "mt-[-250px]";
-  const showStyle = "mt-0";
-  const [styles, setStyles] = useState(`${basicStyles} ${hiddenStyle}`);
-
-  const applyAnim = () => {
-    setStyles(`${basicStyles} ${showStyle}`)
-  }
-
-  // Apply anim style
-  useEffect(() => {
-    applyAnim();
-  }, [])
-
   // Hide body scrollbar
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
@@ -62,10 +48,10 @@ function ModalContainer(props) {
     // Modal container
     <div
       id="modal-container"
-      className={styles}
+      className="fixed z-50 flex items-center justify-center h-full overflow-auto bg-black/60 md:inset-0 transition-all duration-300 ease-in-out"
     >
       {/* Modal content */}
-      <div className="relative bg-white rounded-lg my-24 mx-auto shadow w-fit dark:bg-gray-700">
+      <div className="relative mx-auto my-24 bg-white rounded-lg shadow w-fit dark:bg-gray-700">
         {/* Close button */}
         <CloseButton handleCloseModal={props.handleCloseModal} />
         {props.children}

@@ -6,7 +6,7 @@ function DropdownButton(props) {
   return (
     <button
       onClick={props.handleClick}
-      className="flex justify-end items-center w-full px-4 py-2 text-left text-gray-900 rounded transition-colors duration-200 text-normal hover:bg-purple-500 hover:text-white"
+      className="flex items-center w-full px-4 py-2 text-left text-gray-300 rounded transition-colors duration-200 text-normal hover:bg-blue-600"
     >
       <span className="block w-4 h-4 mr-2 hover:text-white">
         {props.children}
@@ -17,7 +17,7 @@ function DropdownButton(props) {
 }
 
 function DropdownBody(props) {
-  const styles = `absolute right-0 w-40 min-h-[2rem] mt-2 bg-white border rounded shadow-xl z-10`;
+  const styles = `absolute right-0 w-40 min-h-[2rem] mt-2 bg-zinc-900 border border-gray-300 rounded shadow-xl z-10`;
 
   const buttons = props.buttons?.map((button, i) => {
     // Call parent provided function

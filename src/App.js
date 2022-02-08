@@ -12,6 +12,7 @@ import UserAuth from "./modals/UserAuth";
 import UserSettings from "./modals/UserSettings";
 // Icons
 import { ReactComponent as SettingsIcon } from "./icons/settings-icon.svg";
+import { ReactComponent as LogoutIcon } from "./icons/logout-icon.svg";
 
 function App() {
   // Set the modal component
@@ -76,7 +77,10 @@ function App() {
           text: "Settings",
           handleClick: () => handleOpenModal(<UserSettings />),
         },
-        { text: "Logout", handleClick: () => console.log("logout") },
+        { 
+          icon: <LogoutIcon />,
+          text: "Logout",
+          handleClick: () => console.log("logout") },
       ]}
     />
   );
@@ -85,13 +89,13 @@ function App() {
   const userAuth = (
     <div>
       <button
-        className="px-4 py-1 mr-4 bg-green-600 rounded"
+        className="mr-4 hover:text-gray-300"
         onClick={() => handleOpenModal(<UserAuth />)}
       >
         Sign In
       </button>
       <button
-        className="px-4 py-1 bg-blue-600 rounded"
+        className="px-4 py-1 bg-blue-600 rounded hover:bg-blue-800 hover:text-gray-300"
         onClick={() => handleOpenModal(<UserAuth signUp={true} />)}
       >
         Sign Up

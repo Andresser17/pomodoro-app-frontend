@@ -24,6 +24,21 @@ function useInterval(callback, delay) {
 }
 
 function CounterButton(props) {
+  // Styles
+  const basicStyles = "px-4 py-1 rounded text-md hover:text-gray-300";
+  const selectedStyles = "bg-blue-600 hover:bg-blue-800";
+  const [styles, setStyles] = useState(basicStyles);
+
+  const applyStyles = () => {
+    if (props.selected.mode === props.mode.mode) {
+      setStyles(`${basicStyles} ${selectedStyles}`);
+    } else setStyles(`${basicStyles}`);
+  };
+
+  useEffect(() => {
+    applyStyles();
+  }, [props.selected]);
+
   // Convert mode to name
   const name = props.mode.mode
     .replace("-", " ")
@@ -34,10 +49,7 @@ function CounterButton(props) {
     .join(" ");
 
   return (
-    <button
-      className="px-4 py-2 bg-blue-600 rounded text-md"
-      onClick={() => props.toggleModes(props.mode)}
-    >
+    <button className={styles} onClick={() => props.toggleModes(props.mode)}>
       {name}
     </button>
   );
@@ -49,10 +61,17 @@ function CounterToggle(props) {
   };
 
   const buttons = props.modes.map((mode, i) => {
-    return <CounterButton key={i} toggleModes={toggleModes} mode={mode} />;
+    return (
+      <CounterButton
+        selected={props.currentMode}
+        key={i}
+        toggleModes={toggleModes}
+        mode={mode}
+      />
+    );
   });
 
-  return <div className="flex justify-around p-2 bg-white/10">{buttons}</div>;
+  return <div className="flex justify-around">{buttons}</div>;
 }
 
 function Counter(props) {
@@ -65,7 +84,7 @@ function Counter(props) {
     .padStart(2, "0");
 
   return (
-    <div className="flex items-center justify-center h-48 p-8 shadow-inner">
+    <div className="flex items-center justify-center h-48 p-8 mb-4 border-b border-gray-600">
       <span className="text-6xl font-extrabold">
         {minutes}:{seconds}
       </span>
@@ -92,7 +111,6 @@ function Timer(props) {
       // Set default mode
       if (Object.keys(currentMode).length === 0 && item?.default) {
         setCurrentMode(item);
-        // setRemainTime(item.remainTime)
         break;
       }
 
@@ -127,9 +145,7 @@ function Timer(props) {
   };
 
   // Play alarm
-  const playAlarm = () => {
-
-  }
+  const playAlarm = () => {};
 
   const countdown = () => {
     // If time is out
@@ -139,7 +155,7 @@ function Timer(props) {
       // Add completed pomodoro to selected task
       if (currentMode.default) {
         selectedTask?.addCompletedPomodoro();
-      } 
+      }
       return;
     }
 
@@ -150,10 +166,17 @@ function Timer(props) {
   useInterval(countdown, startCount ? 1000 : null);
 
   return (
-    <div className="flex flex-col justify-center p-4 text-white rounded bg-zinc-900 w-96">
-      <CounterToggle modes={props.modes} setCurrentMode={setCurrentMode} />
+    <div className="flex flex-col justify-center p-4 text-gray-300 rounded bg-zinc-900 w-96">
+      <CounterToggle
+        modes={props.modes}
+        currentMode={currentMode}
+        setCurrentMode={setCurrentMode}
+      />
       <Counter time={remainTime} />
-      <button onClick={toggle} className="p-2 text-xl bg-blue-600 rounded">
+      <button
+        onClick={toggle}
+        className="p-2 text-xl bg-blue-600 rounded hover:bg-blue-800 hover:text-gray-300"
+      >
         Start/Stop
       </button>
     </div>

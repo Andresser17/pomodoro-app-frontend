@@ -282,11 +282,11 @@ function Tabs(props) {
   }
 
   return (
-    <div className="p-4 mt-4 overflow-auto min-h-48 max-h-[27rem] bg-zinc-900">
+    <div className="p-4 mt-4 overflow-auto min-h-48 max-h-[27rem] text-white bg-zinc-900">
       <div className="flex items-center justify-between">
         <ul className="flex">{tabs}</ul>
         {/* Add a new task */}
-        <button onClick={handleAddTask} className="px-4 py-2 bg-red-600">+ New Task</button>
+        <button onClick={handleAddTask} className="px-4 py-2 bg-green-500 hover:bg-green-600 hover:text-gray-300">+ New Task</button>
       </div>
       {/* List of tasks */}
       {tasks}
