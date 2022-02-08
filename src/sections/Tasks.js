@@ -173,7 +173,6 @@ function TaskCards(props) {
   // Default styles
   let styles = ``;
   const [show, setShow] = useState("hidden");
-  // const [selectedTask, setSelectedTask] = useState("");
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
 
@@ -194,7 +193,7 @@ function TaskCards(props) {
 
   useEffect(() => {
     toggle();
-  }, [props]);
+  }, [props.selected]);
 
   return <div className={`${styles} ${show}`}>{cards}</div>;
 }
@@ -238,7 +237,7 @@ function Tab(props) {
 
   useEffect(() => {
     toggle();
-  }, [props]);
+  }, [props.selected]);
 
   return (
     <li
@@ -250,14 +249,14 @@ function Tab(props) {
   );
 }
 
-function Tabs(props) {
+function Tasks(props) {
   // States
-  const [selectedTab, setSelectedTab] = useState(props.selectedByDefault);
+  const [selectedTab, setSelectedTab] = useState("pending-tasks");
+  // const [tabs, setTabs] = useState([]);
+  // const [tasks, setTasks] = useState([]);
   let tasks = [];
-
-  const tabs = props.tabs.map((item, i) => {
-    // Save Tasks
-    const task = (
+  let tabs = props.tasks.map((item, i) => {
+    const cards = (
       <TaskCards
         key={item.tab}
         id={item.id}
@@ -265,7 +264,7 @@ function Tabs(props) {
         tasks={item.tasks}
       />
     );
-    tasks.push(task);
+    tasks.push(cards);
 
     return (
       <Tab
@@ -278,29 +277,24 @@ function Tabs(props) {
     );
   });
 
-  const handleAddTask = () => {
-  }
+  // Add new task to the list
+  const handleAddTask = () => {};
 
   return (
     <div className="p-4 mt-4 overflow-auto min-h-48 max-h-[27rem] text-white bg-zinc-900">
       <div className="flex items-center justify-between">
+        {/* List of tabs */}
         <ul className="flex">{tabs}</ul>
         {/* Add a new task */}
-        <button onClick={handleAddTask} className="px-4 py-2 bg-green-500 hover:bg-green-600 hover:text-gray-300">+ New Task</button>
+        <button
+          onClick={handleAddTask}
+          className="px-4 py-2 bg-green-500 hover:bg-green-600 hover:text-gray-300"
+        >
+          + New Task
+        </button>
       </div>
       {/* List of tasks */}
       {tasks}
-    </div>
-  );
-}
-
-function Tasks(props) {
-  return (
-    <div>
-      <Tabs selectedByDefault="pending-tasks" tabs={props.tasks} />
-      <div className="p-4 mt-4 text-white bg-zinc-900">
-        <span>Hello World</span>
-      </div>
     </div>
   );
 }
