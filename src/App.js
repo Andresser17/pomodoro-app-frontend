@@ -133,6 +133,8 @@ function App() {
           ]}
         />
         <Tasks
+          pendingTasks={pendingTasks}
+          setPendingTasks={setPendingTasks}
           tasks={[
             {
               id: "pending-tasks",

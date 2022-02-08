@@ -60,9 +60,16 @@ function TaskCard(props) {
   const [openEditor, setOpenEditor] = useState(false);
   // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
-  const [taskCompleted, setTaskCompleted] = useState("");
+  const [taskCompletedStyles, setTaskCompletedStyles] = useState("");
   const [disabledCardStyles, setDisabledCardStyles] = useState("");
   const styles = `${props.task.color} bg-blue-600 my-4 p-2 w-96`;
+
+  // If props.openEditor is provided update openEditor state
+  useEffect(() => {
+    if (props.openEditor !== undefined) {
+      setOpenEditor(props.openEditor);
+    }
+  }, [props.openEditor]);
 
   // If user click card, call this
   const handleTaskClick = (e) => {
@@ -83,22 +90,12 @@ function TaskCard(props) {
     applySelectedStyles();
   }, [props.selectedTask]);
 
-  const handleCompletedTask = () => {
-    if (taskCompleted === "") {
-      setTaskCompleted("line-through");
-    } else setTaskCompleted("");
-  };
-
   // If task is completed apply this style
-  // const applyCompletedStyles = () => {
-  //   if (taskCompleted) {
-  //     setCompletedStyle("line-through");
-  //   } else setCompletedStyle("");
-  // };
-
-  // useEffect(() => {
-  //   applyCompletedStyles();
-  // }, [taskCompleted]);
+  const handleCompletedTask = () => {
+    if (taskCompletedStyles === "") {
+      setTaskCompletedStyles("line-through");
+    } else setTaskCompletedStyles("");
+  };
 
   // Add completed pomodoro to task
   const addCompletedPomodoro = () => {
@@ -133,7 +130,7 @@ function TaskCard(props) {
         onClick={handleTaskClick}
         className="flex justify-between border-b-2 border-white"
       >
-        <h3 className={`text-lg font-bold text-white ${taskCompleted}`}>
+        <h3 className={`text-lg font-bold text-white ${taskCompletedStyles}`}>
           {props.task.title}
         </h3>
         <span className="text-lg font-bold text-white">
@@ -176,14 +173,17 @@ function TaskCards(props) {
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
 
-  const cards = props.tasks.map((task, key) => (
-    <TaskCard
-      selectedTask={selectedTask}
-      setSelectedTask={selectedTaskVar}
-      key={key}
-      task={task}
-    />
-  ));
+  const cards = props.tasks.map((task, key) => {
+    return (
+      <TaskCard
+        selectedTask={selectedTask}
+        setSelectedTask={selectedTaskVar}
+        key={key}
+        task={task}
+        openEditor={task?.openEditor}
+      />
+    );
+  });
 
   const toggle = () => {
     if (props.id === props.selected) {
@@ -278,7 +278,22 @@ function Tasks(props) {
   });
 
   // Add new task to the list
-  const handleAddTask = () => {};
+  const handleAddTask = () => {
+    const newTask = {
+      id: "pen-898",
+      title: "New Task 898 - Start development of pomodoro app",
+      description:
+        "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
+      expectedPomodoros: 3,
+      completedPomodoros: 3,
+      color: "#333",
+      completed: true,
+      // Open editor by default
+      openEditor: true,
+    };
+
+    props.setPendingTasks([newTask, ...props.pendingTasks]);
+  };
 
   return (
     <div className="p-4 mt-4 overflow-auto min-h-48 max-h-[27rem] text-white bg-zinc-900">
