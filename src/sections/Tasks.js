@@ -62,7 +62,7 @@ function TaskCard(props) {
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompletedStyles, setTaskCompletedStyles] = useState("");
   const [disabledCardStyles, setDisabledCardStyles] = useState("");
-  const styles = `${props.task.color} bg-blue-600 my-4 p-2 w-96`;
+  const styles = `${props.task.color} bg-blue-600 mb-4 p-2 w-96 last:mb-0`;
 
   // If props.openEditor is provided update openEditor state
   useEffect(() => {
@@ -168,7 +168,7 @@ function TaskCard(props) {
 
 function TaskCards(props) {
   // Default styles
-  let styles = ``;
+  let styles = `overflow-y-scroll mt-4`;
   const [show, setShow] = useState("hidden");
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
@@ -292,11 +292,11 @@ function Tasks(props) {
       openEditor: true,
     };
 
-    props.setPendingTasks([newTask, ...props.pendingTasks]);
+    props.setPendingTasks([...props.pendingTasks, newTask]);
   };
 
   return (
-    <div className="p-4 mt-4 overflow-auto min-h-48 max-h-[27rem] text-white bg-zinc-900">
+    <div className="flex flex-col grow-1 p-4 mt-4 h-[27rem] text-white bg-zinc-900">
       <div className="flex items-center justify-between">
         {/* List of tabs */}
         <ul className="flex">{tabs}</ul>
