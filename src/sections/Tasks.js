@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useReactiveVar } from "@apollo/client";
 // React-quill
 import ReactQuill from "react-quill";
@@ -161,7 +161,7 @@ function TaskCard(props) {
 
   return (
     <div className={`${styles} ${selectedStyle}`}>
-      {openEditor ? <TaskEditor handleEditTask={handleEditTask} /> : task}
+      {props.openEditor ? <TaskEditor handleEditTask={handleEditTask} /> : task}
     </div>
   );
 }
@@ -170,8 +170,30 @@ function TaskCards(props) {
   // Default styles
   let styles = `overflow-y-scroll mt-4`;
   const [show, setShow] = useState("hidden");
+  const [scrollPosition, setScrollPosition] = useState(0);
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
+  // Get component container div
+  const container = useRef();
+
+  // Manage component scroll position
+  const scrollToBottom = () => {
+    // If a new task was added
+    if (props.addedNewTask) {
+      const scrollHeight = container.current.scrollHeight;
+      const clientHeight = container.current.clientHeight;
+      console.log(scrollHeight);
+      console.log(clientHeight);
+      // Set scroll position to bottom
+      container.current.scrollTop = scrollHeight - clientHeight;
+      setScrollPosition(container.current.scrollTop)
+      // props.setAddedNewTask(false);
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [props.addedNewTask, props.tasks]);
 
   const cards = props.tasks.map((task, key) => {
     return (
@@ -195,7 +217,15 @@ function TaskCards(props) {
     toggle();
   }, [props.selected]);
 
-  return <div className={`${styles} ${show}`}>{cards}</div>;
+  return (
+    <div
+      onClick={scrollToBottom}
+      ref={container}
+      className={`${styles} ${show}`}
+    >
+      {cards}
+    </div>
+  );
 }
 
 function SubTabs(props) {
@@ -252,8 +282,7 @@ function Tab(props) {
 function Tasks(props) {
   // States
   const [selectedTab, setSelectedTab] = useState("pending-tasks");
-  // const [tabs, setTabs] = useState([]);
-  // const [tasks, setTasks] = useState([]);
+  const [addedNewTask, setAddedNewTask] = useState(false);
   let tasks = [];
   let tabs = props.tasks.map((item, i) => {
     const cards = (
@@ -262,6 +291,8 @@ function Tasks(props) {
         id={item.id}
         selected={selectedTab}
         tasks={item.tasks}
+        addedNewTask={addedNewTask}
+        setAddedNewTask={setAddedNewTask}
       />
     );
     tasks.push(cards);
@@ -293,6 +324,8 @@ function Tasks(props) {
     };
 
     props.setPendingTasks([...props.pendingTasks, newTask]);
+    // Set scroll to final position;
+    setAddedNewTask(true);
   };
 
   return (
