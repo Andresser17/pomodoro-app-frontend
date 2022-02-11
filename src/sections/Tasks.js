@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useReactiveVar } from "@apollo/client";
 // React-quill
 import ReactQuill from "react-quill";
@@ -51,44 +51,59 @@ function TaskEditor(props) {
   );
 }
 
-function TaskCard(props) {
+function TaskCard({
+  newTask,
+  currentTask,
+  setChildIsMounted,
+  selectedTask,
+  setSelectedTask,
+}) {
   // States
   const [completedPomodoros, setCompletedPomodoros] = useState(
-    props.task.completedPomodoros
+    currentTask.completedPomodoros
   );
-  const [disabledCard, setDisabledCard] = useState(false);
+  const [disabledCard] = useState(false);
   const [openEditor, setOpenEditor] = useState(false);
   // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompletedStyles, setTaskCompletedStyles] = useState("");
   const [disabledCardStyles, setDisabledCardStyles] = useState("");
-  const styles = `${props.task.color} bg-blue-600 mb-4 p-2 w-96 last:mb-0`;
+  const styles = `${currentTask.color} bg-blue-600 mb-4 p-2 w-96 last:mb-0`;
 
-  // If props.openEditor is provided update openEditor state
+  // If props.newTask is provided update openEditor state
   useEffect(() => {
-    if (props.openEditor !== undefined) {
-      setOpenEditor(props.openEditor);
+    if (newTask !== undefined) {
+      setOpenEditor(newTask);
     }
-  }, [props.openEditor]);
+  }, [newTask]);
+
+  // After openEditor state is updated, call setChildIsMounted
+  useEffect(() => {
+    const childIsMounted = () => {
+      if (openEditor) {
+        setChildIsMounted(true);
+      }
+    };
+    childIsMounted();
+  }, [openEditor, setChildIsMounted]);
 
   // If user click card, call this
   const handleTaskClick = (e) => {
-    props.setSelectedTask({
-      id: props.task.id,
+    setSelectedTask({
+      id: currentTask.id,
       addCompletedPomodoro: addCompletedPomodoro,
     });
   };
 
   // If task is selected apply this style
-  const applySelectedStyles = () => {
-    if (props.selectedTask.id === props.task.id) {
-      setSelectedStyle("border-b-2 border-red-600");
-    } else setSelectedStyle("border-b-2 border-gray-600");
-  };
-
   useEffect(() => {
+    const applySelectedStyles = () => {
+      if (selectedTask.id === currentTask.id) {
+        setSelectedStyle("border-b-2 border-red-600");
+      } else setSelectedStyle("border-b-2 border-gray-600");
+    };
     applySelectedStyles();
-  }, [props.selectedTask]);
+  }, [selectedTask, currentTask]);
 
   // If task is completed apply this style
   const handleCompletedTask = () => {
@@ -114,13 +129,12 @@ function TaskCard(props) {
 
   // If timer is started disable
   // the possibility of change selected task
-  const toggleDisabledCard = () => {
-    if (disabledCardStyles === "cursor-pointer") {
-      setDisabledCardStyles("");
-    } else setDisabledCardStyles("cursor-pointer");
-  };
-
   useEffect(() => {
+    const toggleDisabledCard = () => {
+      if (!disabledCard) {
+        setDisabledCardStyles("");
+      } else setDisabledCardStyles("cursor-pointer");
+    };
     toggleDisabledCard();
   }, [disabledCard]);
 
@@ -131,14 +145,14 @@ function TaskCard(props) {
         className="flex justify-between border-b-2 border-white"
       >
         <h3 className={`text-lg font-bold text-white ${taskCompletedStyles}`}>
-          {props.task.title}
+          {currentTask.title}
         </h3>
         <span className="text-lg font-bold text-white">
-          {completedPomodoros}/{props.task.expectedPomodoros}
+          {completedPomodoros}/{currentTask.expectedPomodoros}
         </span>
       </div>
       <div onClick={handleTaskClick} className="shadow-inner">
-        <p className="my-4">{props.task.description}</p>
+        <p className="my-4">{currentTask.description}</p>
       </div>
       <div className="flex justify-end mt-4">
         <button
@@ -161,61 +175,58 @@ function TaskCard(props) {
 
   return (
     <div className={`${styles} ${selectedStyle}`}>
-      {props.openEditor ? <TaskEditor handleEditTask={handleEditTask} /> : task}
+      {openEditor ? <TaskEditor handleEditTask={handleEditTask} /> : task}
     </div>
   );
 }
 
-function TaskCards(props) {
+function TaskCards({ addedNewTask, setAddedNewTask, tasks, id, selected }) {
+  const [childIsMounted, setChildIsMounted] = useState(false);
   // Default styles
   let styles = `overflow-y-scroll mt-4`;
   const [show, setShow] = useState("hidden");
-  const [scrollPosition, setScrollPosition] = useState(0);
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
   // Get component container div
   const container = useRef();
-
-  // Manage component scroll position
-  const scrollToBottom = () => {
-    // If a new task was added
-    if (props.addedNewTask) {
-      const scrollHeight = container.current.scrollHeight;
-      const clientHeight = container.current.clientHeight;
-      console.log(scrollHeight);
-      console.log(clientHeight);
-      // Set scroll position to bottom
-      container.current.scrollTop = scrollHeight - clientHeight;
-      setScrollPosition(container.current.scrollTop)
-      // props.setAddedNewTask(false);
-    }
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [props.addedNewTask, props.tasks]);
-
-  const cards = props.tasks.map((task, key) => {
+  const cards = tasks.map((task, key) => {
     return (
       <TaskCard
         selectedTask={selectedTask}
         setSelectedTask={selectedTaskVar}
         key={key}
-        task={task}
-        openEditor={task?.openEditor}
+        currentTask={task}
+        newTask={task?.openEditor}
+        setChildIsMounted={setChildIsMounted}
       />
     );
   });
 
-  const toggle = () => {
-    if (props.id === props.selected) {
-      setShow("");
-    } else setShow("hidden");
-  };
+  // Manage component scroll position
+  const scrollToBottom = useCallback(() => {
+    // If a new task was added
+    if (addedNewTask && childIsMounted) {
+      const scrollHeight = container.current.scrollHeight;
+      const clientHeight = container.current.clientHeight;
+      // Set scroll position to bottom
+      container.current.scrollTop = scrollHeight - clientHeight;
+      setAddedNewTask(false);
+    }
+  }, [addedNewTask, setAddedNewTask, childIsMounted]);
 
   useEffect(() => {
+    scrollToBottom();
+  });
+
+  // Change selected tasks view
+  useEffect(() => {
+    const toggle = () => {
+      if (id === selected) {
+        setShow("");
+      } else setShow("hidden");
+    };
     toggle();
-  }, [props.selected]);
+  }, [id, selected]);
 
   return (
     <div
@@ -233,15 +244,15 @@ function SubTabs(props) {
   let styles = "flex w-full bg-green-600 even:bg-yellow-600";
   const [show, setShow] = useState("hidden");
 
-  const toggle = () => {
-    if (props.id === props.selected) {
-      setShow("");
-    } else setShow("hidden");
-  };
-
+  // Change selected subtab
   useEffect(() => {
+    const toggle = () => {
+      if (props.id === props.selected) {
+        setShow("");
+      } else setShow("hidden");
+    };
     toggle();
-  }, [props]);
+  }, [props.id, props.selected]);
 
   return (
     <div className={`${styles} ${show}`}>
@@ -259,15 +270,15 @@ function Tab(props) {
   let styles = `block p-2 text-white bg-blue-600 cursor-pointer`;
   const [current, setCurrent] = useState("");
 
-  const toggle = () => {
-    if (props.id === props.selected) {
-      setCurrent("border-b-2 border-white");
-    } else setCurrent("");
-  };
-
+  // Change selected tab
   useEffect(() => {
+    const toggle = () => {
+      if (props.id === props.selected) {
+        setCurrent("border-b-2 border-white");
+      } else setCurrent("");
+    };
     toggle();
-  }, [props.selected]);
+  }, [props.id, props.selected]);
 
   return (
     <li
