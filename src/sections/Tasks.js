@@ -57,6 +57,7 @@ function TaskCard({
   setChildIsMounted,
   selectedTask,
   setSelectedTask,
+  setAddedNewTask,
 }) {
   // States
   const [completedPomodoros, setCompletedPomodoros] = useState(
@@ -124,6 +125,7 @@ function TaskCard({
     }
 
     // Toggle task editor
+    setAddedNewTask(false);
     setOpenEditor(!openEditor);
   };
 
@@ -198,6 +200,7 @@ function TaskCards({ addedNewTask, setAddedNewTask, tasks, id, selected }) {
         currentTask={task}
         newTask={task?.openEditor}
         setChildIsMounted={setChildIsMounted}
+        setAddedNewTask={setAddedNewTask}
       />
     );
   });
@@ -210,9 +213,9 @@ function TaskCards({ addedNewTask, setAddedNewTask, tasks, id, selected }) {
       const clientHeight = container.current.clientHeight;
       // Set scroll position to bottom
       container.current.scrollTop = scrollHeight - clientHeight;
-      setAddedNewTask(false);
+      setChildIsMounted(false);
     }
-  }, [addedNewTask, setAddedNewTask, childIsMounted]);
+  }, [addedNewTask, childIsMounted]);
 
   useEffect(() => {
     scrollToBottom();
@@ -321,6 +324,8 @@ function Tasks(props) {
 
   // Add new task to the list
   const handleAddTask = () => {
+    if (addedNewTask) return;
+
     const newTask = {
       id: "pen-898",
       title: "New Task 898 - Start development of pomodoro app",
