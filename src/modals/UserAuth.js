@@ -2,9 +2,9 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 // Components
-import Input from "../components/Input";
+import Input from "components/Input";
 // Services
-import authService from "../services/auth.service";
+import authService from "services/auth.service";
 
 function AuthRemember(props) {
   return (
@@ -154,12 +154,12 @@ function UserSignIn(props) {
     authService
       .login(data.email, data.password)
       .then(() => {
+        console.log(JSON.stringify(data, null, 2));
         window.location.reload();
       })
       .catch((error) => {
         console.error(error.response.data?.message);
       });
-    console.log(JSON.stringify(data, null, 2));
   };
 
   return (

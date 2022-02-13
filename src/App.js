@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 // Sections
 import Tasks from "./sections/Tasks";
 import Timer from "./sections/Timer";
@@ -10,21 +10,32 @@ import UserOptions from "./components/UserOptions";
 import ModalContainer from "./modals/ModalContainer";
 import UserAuth from "./modals/UserAuth";
 import UserSettings from "./modals/UserSettings";
+import UserProfile from "./modals/UserProfile";
 // Icons
 import { ReactComponent as SettingsIcon } from "./icons/settings-icon.svg";
 import { ReactComponent as LogoutIcon } from "./icons/logout-icon.svg";
 // Services
 import authService from "./services/auth.service";
+import userService from "./services/user.service";
+// Common
+import eventBus from "./common/eventBus";
 
 function App() {
   // States
   const [pendingTasks, setPendingTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
   // Set the modal component
-  const [modalToOpen, setModalToOpen] = useState(undefined);
-  const [userIsLogged, setUserIsLogged] = useState(
-    localStorage.getItem("user") ? true : false
-  );
+  const [modalToOpen, setModalToOpen] = useState(null);
+  const [userIsLogged, setUserIsLogged] = useState(null);
+
+  // If a user is logged, get info
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+
+    if (user) {
+      setUserIsLogged(user);
+    }
+  }, []);
 
   // Open a new modal
   const handleOpenModal = (modal) => {
@@ -37,10 +48,8 @@ function App() {
 
   // Close open modal
   const handleCloseModal = () => {
-    setModalToOpen(undefined);
+    setModalToOpen(null);
   };
-
-  const logoutUser = () => {};
 
   const parseTasks = () => {
     const pending = {
@@ -84,9 +93,48 @@ function App() {
     parseTasks();
   }, []);
 
+  const logoutUser = useCallback(() => {
+    authService.logout();
+    window.location.reload();
+  });
+
+  // Add event to logout user if JWT token expired
+  useEffect(() => {
+    eventBus.on("logout", () => {
+      logoutUser();
+    });
+
+    return () => {
+      eventBus.remove("logout");
+    };
+  }, [logoutUser]);
+
+  // Check if JWT token expired
+  useEffect(() => {
+    const userId = authService.getCurrentUser()?.id;
+
+    if (userId) {
+      userService
+        .getUserSettings(userId)
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 401) {
+            eventBus.dispatch("logout");
+          }
+        });
+    }
+  }, []);
+
   const userOptions = (
     <UserOptions
       buttons={[
+        {
+          icon: <SettingsIcon />,
+          text: "Profile",
+          handleClick: () => handleOpenModal(<UserProfile />),
+        },
         {
           icon: <SettingsIcon />,
           text: "Settings",
@@ -95,10 +143,7 @@ function App() {
         {
           icon: <LogoutIcon />,
           text: "Logout",
-          handleClick: () => {
-            authService.logout();
-            window.location.reload();
-          },
+          handleClick: logoutUser,
         },
       ]}
     />
