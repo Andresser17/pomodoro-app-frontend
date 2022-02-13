@@ -35,14 +35,14 @@ function ModalContainer(props) {
     }
   };
 
-  useEffect(() => {
-    window.addEventListener("click", handleOutsideClick);
+  // useEffect(() => {
+  //   window.addEventListener("click", handleOutsideClick);
 
-    // Unmount listener
-    return () => {
-      window.removeEventListener("click", handleOutsideClick);
-    };
-  }, []);
+  //   // Unmount listener
+  //   return () => {
+  //     window.removeEventListener("click", handleOutsideClick);
+  //   };
+  // }, []);
 
   return (
     // Modal container

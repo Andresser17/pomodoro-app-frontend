@@ -13,6 +13,8 @@ import UserSettings from "./modals/UserSettings";
 // Icons
 import { ReactComponent as SettingsIcon } from "./icons/settings-icon.svg";
 import { ReactComponent as LogoutIcon } from "./icons/logout-icon.svg";
+// Services
+import authService from "./services/auth.service";
 
 function App() {
   // States
@@ -20,7 +22,9 @@ function App() {
   const [completedTasks, setCompletedTasks] = useState([]);
   // Set the modal component
   const [modalToOpen, setModalToOpen] = useState(undefined);
-  const [userIsLogged, setUserIsLogged] = useState(false);
+  const [userIsLogged, setUserIsLogged] = useState(
+    localStorage.getItem("user") ? true : false
+  );
 
   // Open a new modal
   const handleOpenModal = (modal) => {
@@ -77,8 +81,8 @@ function App() {
   };
 
   useEffect(() => {
-    parseTasks(); 
-  }, [])
+    parseTasks();
+  }, []);
 
   const userOptions = (
     <UserOptions
@@ -91,7 +95,10 @@ function App() {
         {
           icon: <LogoutIcon />,
           text: "Logout",
-          handleClick: () => console.log("logout"),
+          handleClick: () => {
+            authService.logout();
+            window.location.reload();
+          },
         },
       ]}
     />

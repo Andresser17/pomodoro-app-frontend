@@ -3,6 +3,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 // Components
 import Input from "../components/Input";
+// Services
+import authService from "../services/auth.service";
 
 function AuthRemember(props) {
   return (
@@ -71,12 +73,19 @@ function UserSignUp(props) {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
   const onSubmit = (data) => {
+    authService
+      .register(data.email, data.password)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error, message) => {
+        console.error(error.response.data?.message)
+      });
     console.log(JSON.stringify(data, null, 2));
   };
 
@@ -132,34 +141,39 @@ function UserSignUp(props) {
 function UserSignIn(props) {
   const validationSchema = Yup.object().shape({
     email: Yup.string().required("Email is required").email("Email is invalid"),
-    password: Yup.string()
-      .required("Password is required")
-      .min(6, "Password must be at least 6 characters")
-      .max(40, "Password must not exceed 40 characters"),
-    confirmPassword: Yup.string()
-      .required("Confirm Password is required")
-      .oneOf([Yup.ref("password"), null], "Confirm Password does not match"),
+    password: Yup.string().required("Password is required"),
   });
   const {
-    login,
+    register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
   const onSubmit = (data) => {
+    authService
+      .login(data.email, data.password)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error(error.response.data?.message);
+      });
     console.log(JSON.stringify(data, null, 2));
   };
 
   return (
-    <AuthForm onSubmit={onSubmit}>
+    <AuthForm handleSubmit={handleSubmit(onSubmit)}>
       <Input
         dim={{ input: "w-full" }}
         labelText={{ text: "Your email" }}
         placeholder="name@company.com"
         type="email"
         name="email"
+        resolver={{
+          func: register("email"),
+          error: errors.email,
+        }}
       />
       <Input
         dim={{ input: "w-full" }}
@@ -167,6 +181,10 @@ function UserSignIn(props) {
         placeholder="••••••••"
         type="password"
         name="password"
+        resolver={{
+          func: register("password"),
+          error: errors.password,
+        }}
       />
       <AuthRemember />
       <FormSubmit text="Login to your account" />
