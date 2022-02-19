@@ -1,29 +1,30 @@
-import axios from "axios";
-import authHeader from "./auth-header";
-const API_URL = "http://localhost:3600/api/users/";
+import api from "./api";
+const API_URL = "/users/";
 
 const getPublicContent = () => {
-  return axios.get(API_URL + "all");
+  return api.get(API_URL + "all");
 };
 const getUserBoard = () => {
-  return axios.get(API_URL + "user", { headers: authHeader() });
+  return api.get(API_URL + "user");
 };
 const getModeratorBoard = () => {
-  return axios.get(API_URL + "mod", { headers: authHeader() });
+  return api.get(API_URL + "mod");
 };
 const getAdminBoard = () => {
-  return axios.get(API_URL + "admin", { headers: authHeader() });
+  return api.get(API_URL + "admin");
 };
 
 const getUserSettings = (userId) => {
   const url = API_URL + `${userId}/settings`;
-  return axios.get(url, { headers: authHeader() });
+  return api.get(url);
 };
 
-export default {
+const userService = {
   getPublicContent,
   getUserBoard,
   getModeratorBoard,
   getAdminBoard,
   getUserSettings,
 };
+
+export default userService;

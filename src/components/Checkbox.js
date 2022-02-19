@@ -9,7 +9,14 @@ function Checkbox(props) {
   const checkedStyle = "bg-purple-600 transform translate-x-full";
   const [styles, setStyles] = useState("");
 
-  const handleChecked = () => {
+  useEffect(() => {
+    // If props.checked is provided, set value to state
+    if (props.checked !== undefined) {
+      setChecked(props.checked);
+    }
+  }, [props.checked]);
+
+  const handleChecked = (e) => {
     // Only active if click inside checkbox container
     setChecked(!checked);
   };
@@ -42,7 +49,7 @@ function Checkbox(props) {
               type="checkbox"
               checked={checked}
               onChange={handleChecked}
-              className="absolute w-0 h-0 opacity-0"
+              className="absolute w-0 h-0 bg-green-600 opacity-0"
             />
           </span>
         </span>

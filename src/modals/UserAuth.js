@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 // Components
-import Input from "components/Input";
+import FormInput from "components/FormInput";
 // Services
 import authService from "services/auth.service";
 
@@ -91,7 +91,7 @@ function UserSignUp(props) {
 
   return (
     <AuthForm handleSubmit={handleSubmit(onSubmit)}>
-      <Input
+      <FormInput
         dim={{ input: "w-full" }}
         labelText={{ text: "Your email" }}
         placeholder="name@company.com"
@@ -102,7 +102,7 @@ function UserSignUp(props) {
           error: errors.email,
         }}
       />
-      <Input
+      <FormInput
         dim={{ input: "w-full" }}
         labelText={{ text: "Your password" }}
         placeholder="••••••••"
@@ -113,7 +113,7 @@ function UserSignUp(props) {
           error: errors.password,
         }}
       />
-      <Input
+      <FormInput
         dim={{ input: "w-full" }}
         labelText={{ text: "Confirm password" }}
         placeholder="••••••••"
@@ -164,7 +164,7 @@ function UserSignIn(props) {
 
   return (
     <AuthForm handleSubmit={handleSubmit(onSubmit)}>
-      <Input
+      <FormInput
         dim={{ input: "w-full" }}
         labelText={{ text: "Your email" }}
         placeholder="name@company.com"
@@ -175,7 +175,7 @@ function UserSignIn(props) {
           error: errors.email,
         }}
       />
-      <Input
+      <FormInput
         dim={{ input: "w-full" }}
         labelText={{ text: "Your password" }}
         placeholder="••••••••"

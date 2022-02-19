@@ -24,6 +24,7 @@ function App() {
   // States
   const [pendingTasks, setPendingTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
+  const [userSettings, setUserSettings] = useState({});
   // Set the modal component
   const [modalToOpen, setModalToOpen] = useState(null);
   const [userIsLogged, setUserIsLogged] = useState(null);
@@ -109,7 +110,7 @@ function App() {
     };
   }, [logoutUser]);
 
-  // Check if JWT token expired
+  // Fetch user settings and check if JWT token expired
   useEffect(() => {
     const userId = authService.getCurrentUser()?.id;
 
@@ -117,10 +118,10 @@ function App() {
       userService
         .getUserSettings(userId)
         .then((response) => {
-          console.log(response);
+          setUserSettings(response.data);
         })
         .catch((error) => {
-          if (error.response && error.response.status === 401) {
+          if (error.response && error.response.status === 403) {
             eventBus.dispatch("logout");
           }
         });
@@ -138,7 +139,8 @@ function App() {
         {
           icon: <SettingsIcon />,
           text: "Settings",
-          handleClick: () => handleOpenModal(<UserSettings />),
+          handleClick: () =>
+            handleOpenModal(<UserSettings settings={userSettings} />),
         },
         {
           icon: <LogoutIcon />,
