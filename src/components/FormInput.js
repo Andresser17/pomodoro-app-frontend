@@ -5,9 +5,9 @@ function FormInput(props) {
     <div className={props.dim?.cont}>
       <label
         htmlFor={props.name}
-        className={`block mb-2 ${props.labelText.style}`}
+        className={`block mb-2 ${props.labelText?.style}`}
       >
-        {props.labelText.text}
+        {props.labelText?.text}
       </label>
       <input
         type={props.type}

@@ -19,12 +19,18 @@ const getUserSettings = (userId) => {
   return api.get(url);
 };
 
+const setUserSettings = (userId, newSettings) => {
+  const url = API_URL + `${userId}/settings`;
+  return api.patch(url, newSettings);
+};
+
 const userService = {
   getPublicContent,
   getUserBoard,
   getModeratorBoard,
   getAdminBoard,
   getUserSettings,
+  setUserSettings,
 };
 
 export default userService;

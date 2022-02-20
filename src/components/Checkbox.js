@@ -9,17 +9,22 @@ function Checkbox(props) {
   const checkedStyle = "bg-purple-600 transform translate-x-full";
   const [styles, setStyles] = useState("");
 
+  const handleChecked = (e) => {
+    const key = props.name
+      .split("-")
+      .map((word, i) => (i > 0 ? word[0].toUpperCase() + word.slice(1) : word))
+      .join("");
+    // Save new current value
+    props.saveChange(key, !checked);
+    setChecked(!checked);
+  };
+
+  // If props.checked is provided, set value to state
   useEffect(() => {
-    // If props.checked is provided, set value to state
     if (props.checked !== undefined) {
       setChecked(props.checked);
     }
   }, [props.checked]);
-
-  const handleChecked = (e) => {
-    // Only active if click inside checkbox container
-    setChecked(!checked);
-  };
 
   // Toggle active/deactive style
   const toggleStyles = () => {
@@ -36,7 +41,7 @@ function Checkbox(props) {
   return (
     <div className="flex flex-col">
       <label
-        htmlFor={props.id}
+        htmlFor={props.name}
         className="inline-flex items-center justify-between mt-3"
       >
         <span className={props.text.style}>{props.text.text}</span>
@@ -45,7 +50,7 @@ function Checkbox(props) {
           <span className="block w-10 h-6 bg-gray-400 rounded-full shadow-inner"></span>
           <span className={`${styles}`}>
             <input
-              id={props.id}
+              id={props.name}
               type="checkbox"
               checked={checked}
               onChange={handleChecked}

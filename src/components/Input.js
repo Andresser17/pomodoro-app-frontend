@@ -4,7 +4,14 @@ function Input(props) {
   const [value, setValue] = useState("");
 
   const handleChange = (e) => {
-    const newValue = e.target.value;
+    const key = props.name
+      .split("-")
+      .map((word, i) => (i > 0 ? word[0].toUpperCase() + word.slice(1) : word))
+      .join("");
+    const newValue =
+      props.type === "number" ? Number(e.target.value) : e.target.value;
+    // Save new current value
+    props.saveChange(key, newValue);
     setValue(newValue);
   };
 
@@ -19,9 +26,9 @@ function Input(props) {
     <div className={props.dim?.cont}>
       <label
         htmlFor={props.name}
-        className={`block mb-2 ${props.labelText.style}`}
+        className={`block mb-2 ${props.labelText?.style}`}
       >
-        {props.labelText.text}
+        {props.labelText?.text}
       </label>
       <input
         type={props.type}
