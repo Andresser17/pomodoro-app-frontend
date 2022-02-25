@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 // Components
 import Input from "components/Input";
 import Checkbox from "components/Checkbox";
@@ -7,27 +7,27 @@ import Selection from "components/Selection";
 import authService from "services/auth.service";
 import userService from "services/user.service";
 
-function UserSettings({ settings }) {
-  const [currentSettings, setCurrentSettings] = useState({});
-
+function UserSettings({ settings, setSettings }) {
   // Save change when user close modal
-  const saveChangesToDb = async () => {
-    const userId = authService.getCurrentUser()?.id;
-    const saved = await userService.setUserSettings(userId, currentSettings);
-  };
+  const getSettingsRef = useRef();
+  getSettingsRef.current = settings;
 
-  // Save changes in current component state
-  const handleSaveSettings = (key, newValue) => {
-    const newSettings = { ...currentSettings, [key]: newValue };
-    setCurrentSettings(newSettings);
-  };
-
-  // Set props.settings to currentSettings
   useEffect(() => {
-    if (Object.keys(currentSettings).length === 0) {
-      setCurrentSettings(settings);
-    }
-  }, [settings]);
+    const saveChangesToDb = async () => {
+      const userId = authService.getCurrentUser()?.id;
+      const saved = await userService.setUserSettings(userId, settings);
+    };
+
+    return () => {
+      saveChangesToDb();
+    };
+  }, []);
+
+  // Save changes in current parent state
+  const handleSaveSettings = (key, newValue) => {
+    const newSettings = { ...settings, [key]: newValue };
+    setSettings((prevState) => newSettings);
+  };
 
   return (
     <div className="w-[24rem] p-4 font-medium border-gray-600 text-gray-900 dark:text-gray-300">
@@ -39,7 +39,7 @@ function UserSettings({ settings }) {
           labelText={{ text: "Pomodoro", style: "text-sm" }}
           type="number"
           name="pomodoro"
-          value={currentSettings.pomodoro}
+          value={settings.pomodoro}
           saveChange={handleSaveSettings}
         />
         <Input
@@ -47,7 +47,7 @@ function UserSettings({ settings }) {
           labelText={{ text: "Short Break", style: "text-sm" }}
           type="number"
           name="short-break"
-          value={currentSettings.shortBreak}
+          value={settings.shortBreak}
           saveChange={handleSaveSettings}
         />
         <Input
@@ -55,7 +55,7 @@ function UserSettings({ settings }) {
           labelText={{ text: "Long Break", style: "text-sm" }}
           type="number"
           name="long-break"
-          value={currentSettings.longBreak}
+          value={settings.longBreak}
           saveChange={handleSaveSettings}
         />
       </div>
@@ -63,7 +63,7 @@ function UserSettings({ settings }) {
         <Checkbox
           text={{ text: "Auto start Breaks?", style: "text-xl" }}
           name="auto-start-break"
-          checked={currentSettings.autoStartBreak}
+          checked={settings.autoStartBreak}
           saveChange={handleSaveSettings}
         />
       </div>
@@ -71,7 +71,7 @@ function UserSettings({ settings }) {
         <Checkbox
           text={{ text: "Auto start Pomodoro?", style: "text-xl" }}
           name="auto-start-pomodoro"
-          checked={currentSettings.autoStartPomodoro}
+          checked={settings.autoStartPomodoro}
           saveChange={handleSaveSettings}
         />
       </div>
@@ -84,7 +84,7 @@ function UserSettings({ settings }) {
           labelText={{ text: "Long Break Interval", style: "text-xl" }}
           type="number"
           name="long-break-interval"
-          value={currentSettings.longBreakInterval}
+          value={settings.longBreakInterval}
           saveChange={handleSaveSettings}
         />
       </div>
@@ -92,7 +92,7 @@ function UserSettings({ settings }) {
         <Checkbox
           text={{ text: "Active Short Break", style: "text-xl" }}
           name="short-break-active"
-          checked={currentSettings.shortBreakActive}
+          checked={settings.shortBreakActive}
           saveChange={handleSaveSettings}
         />
       </div>
@@ -100,7 +100,7 @@ function UserSettings({ settings }) {
         <Checkbox
           text={{ text: "Active Long Break", style: "text-xl" }}
           name="long-break-active"
-          checked={currentSettings.longBreakActive}
+          checked={settings.longBreakActive}
           saveChange={handleSaveSettings}
         />
       </div>
@@ -123,12 +123,12 @@ function UserSettings({ settings }) {
       <Checkbox
         text={{ text: "Dark Mode", style: "text-xl" }}
         name="dark-mode"
-        checked={currentSettings.darkMode}
+        checked={settings.darkMode}
         saveChange={handleSaveSettings}
       />
-      <button onClick={saveChangesToDb} className="p-4 bg-red-600">
-        Save
-      </button>
+      {/* <button onClick={saveChangesToDb} className="p-4 bg-red-600"> */}
+      {/*   Save */}
+      {/* </button> */}
     </div>
   );
 }

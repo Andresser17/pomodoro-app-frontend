@@ -25,7 +25,8 @@ function App() {
   const [pendingTasks, setPendingTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [userSettings, setUserSettings] = useState({});
-  // Set the modal component
+  // Set modal component to open
+  const [openModal, setOpenModal] = useState(false);
   const [modalToOpen, setModalToOpen] = useState(null);
   const [userIsLogged, setUserIsLogged] = useState(null);
 
@@ -39,17 +40,9 @@ function App() {
   }, []);
 
   // Open a new modal
-  const handleOpenModal = (modal) => {
-    setModalToOpen(
-      <ModalContainer handleCloseModal={handleCloseModal}>
-        {modal}
-      </ModalContainer>
-    );
-  };
-
-  // Close open modal
-  const handleCloseModal = () => {
-    setModalToOpen(null);
+  const handleToggleModal = (modal) => {
+    setModalToOpen(modal);
+    setOpenModal(!openModal);
   };
 
   const parseTasks = () => {
@@ -134,13 +127,12 @@ function App() {
         {
           icon: <SettingsIcon />,
           text: "Profile",
-          handleClick: () => handleOpenModal(<UserProfile />),
+          handleClick: () => handleToggleModal("userProfile"),
         },
         {
           icon: <SettingsIcon />,
           text: "Settings",
-          handleClick: () =>
-            handleOpenModal(<UserSettings settings={userSettings} />),
+          handleClick: () => handleToggleModal("userSettings"),
         },
         {
           icon: <LogoutIcon />,
@@ -156,13 +148,13 @@ function App() {
     <div>
       <button
         className="mr-4 hover:text-gray-300"
-        onClick={() => handleOpenModal(<UserAuth />)}
+        onClick={() => handleToggleModal("userLogin")}
       >
         Sign In
       </button>
       <button
         className="px-4 py-1 bg-blue-600 rounded hover:bg-blue-800 hover:text-gray-300"
-        onClick={() => handleOpenModal(<UserAuth signUp={true} />)}
+        onClick={() => handleToggleModal("userSignUp")}
       >
         Sign Up
       </button>
@@ -172,7 +164,23 @@ function App() {
   return (
     <main className="min-h-screen bg-slate-400">
       {/* User selected modal */}
-      {modalToOpen}
+      <ModalContainer
+        modalToOpen={modalToOpen}
+        toggleModal={handleToggleModal}
+        open={openModal}
+      >
+        {{
+          userProfile: <UserProfile />,
+          userSettings: (
+            <UserSettings
+              setSettings={setUserSettings}
+              settings={userSettings}
+            />
+          ),
+          userLogin: <UserAuth />,
+          userSignUp: <UserAuth signUp={true} />,
+        }}
+      </ModalContainer>
       <TopPanel>
         <SiteLogo />
         {/* If user is logged show UserOptions */}
