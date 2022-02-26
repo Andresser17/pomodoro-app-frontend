@@ -15,7 +15,10 @@ function UserSettings({ settings, setSettings }) {
   useEffect(() => {
     const saveChangesToDb = async () => {
       const userId = authService.getCurrentUser()?.id;
-      const saved = await userService.setUserSettings(userId, settings);
+      const saved = await userService.setUserSettings(
+        userId,
+        getSettingsRef.current
+      );
     };
 
     return () => {
