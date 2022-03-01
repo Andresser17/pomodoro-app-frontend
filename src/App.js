@@ -164,14 +164,11 @@ function App() {
           ]}
         />
         <Tasks
-          pendingTasks={pendingTasks}
-          setPendingTasks={setPendingTasks}
           tasks={[
             {
               id: "pending-tasks",
               tab: "Pending Tasks",
               tasks: [...pendingTasks],
-              default: true,
             },
             {
               id: "completed-tasks",
