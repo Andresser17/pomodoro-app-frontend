@@ -14,6 +14,21 @@ const getAdminBoard = () => {
   return api.get(API_URL + "admin");
 };
 
+const getUserTasks = (userId) => {
+  const url = API_URL + `${userId}/tasks`;
+  return api.get(url);
+};
+
+const createUserTask = (userId, newTask) => {
+  const url = API_URL + `${userId}/tasks`;
+  return api.post(url, newTask);
+}
+
+const updateUserTask = (userId, taskId, newSettings) => {
+  const url = API_URL + `${userId}/tasks/${taskId}`;
+  return api.patch(url, newSettings);
+};
+
 const getUserSettings = (userId) => {
   const url = API_URL + `${userId}/settings`;
   return api.get(url);
@@ -29,6 +44,9 @@ const userService = {
   getUserBoard,
   getModeratorBoard,
   getAdminBoard,
+  getUserTasks,
+  createUserTask,
+  updateUserTask,
   getUserSettings,
   setUserSettings,
 };

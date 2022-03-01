@@ -9,29 +9,57 @@ import { ReactComponent as EditIcon } from "../icons/edit-icon.svg";
 import { selectedTaskVar } from "../cache";
 
 function TaskEditor(props) {
-  const [value, setValue] = useState("");
+  const [title, setTitle] = useState("");
+  const [descrip, setDescrip] = useState("");
+  const [completedPomodoros, setCompletedPomodoros] = useState("");
+  const [expectedPomodoros, setExpectedPomodoros] = useState("");
 
-  const handleOnChange = (val) => {
-    setValue(val);
+  const handleOnChange = (e, cb) => {
+    cb(e.target.value);
   };
+
+  // Set props.currentTask to state
+  useEffect(() => {
+    const setTask = () => {
+      setTitle(props.currentTask.title);
+      setDescrip(props.currentTask.description);
+      setCompletedPomodoros(props.currentTask.completedPomodoros);
+      setExpectedPomodoros(props.currentTask.expectedPomodoros);
+    };
+    setTask();
+  }, []);
 
   return (
     <div>
       {/* Title input */}
-      <input className="w-full p-2" />
+      <input
+        value={title}
+        onChange={(e) => handleOnChange(e, setTitle)}
+        className="w-full p-2 bg-zinc-900"
+      />
 
       <ReactQuill
         className="w-full mt-4"
         theme="snow"
-        value={value}
-        onChange={handleOnChange}
+        value={descrip}
+        onChange={setDescrip}
       />
 
       {/* Add or substract pomodoros */}
       <div className="flex items-center mt-4">
-        <input type="number" className="p-2 w-14" />
+        <input
+          type="number"
+          value={completedPomodoros}
+          onChange={(e) => handleOnChange(e, setCompletedPomodoros)}
+          className="p-2 w-14 bg-zinc-900"
+        />
         <span className="mx-2">/</span>
-        <input type="number" className="p-2 w-14" />
+        <input
+          type="number"
+          value={expectedPomodoros}
+          onChange={(e) => handleOnChange(e, setExpectedPomodoros)}
+          className="p-2 w-14 bg-zinc-900"
+        />
       </div>
       <div className="flex justify-end mt-4">
         <button
@@ -65,6 +93,7 @@ function TaskCard({
   );
   const [disabledCard] = useState(false);
   const [openEditor, setOpenEditor] = useState(false);
+  const [saveChanges, setSaveChanges] = useState(false);
   // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompletedStyles, setTaskCompletedStyles] = useState("");
@@ -91,7 +120,7 @@ function TaskCard({
   // If user click card, call this
   const handleTaskClick = (e) => {
     setSelectedTask({
-      id: currentTask.id,
+      id: currentTask?.id || currentTask?._id,
       addCompletedPomodoro: addCompletedPomodoro,
     });
   };
@@ -99,7 +128,7 @@ function TaskCard({
   // If task is selected apply this style
   useEffect(() => {
     const applySelectedStyles = () => {
-      if (selectedTask.id === currentTask.id) {
+      if (selectedTask.id === currentTask._id) {
         setSelectedStyle("border-b-2 border-red-600");
       } else setSelectedStyle("border-b-2 border-gray-600");
     };
@@ -121,13 +150,18 @@ function TaskCard({
   const handleEditTask = (save) => {
     // Save or discard changes
     if (save) {
-      console.log(save);
     }
 
     // Toggle task editor
     setAddedNewTask(false);
     setOpenEditor(!openEditor);
   };
+
+  // Save change to db
+  useEffect(() => {
+    const saveToDb = async () => {};
+    saveToDb();
+  }, [saveChanges]);
 
   // If timer is started disable
   // the possibility of change selected task
@@ -177,7 +211,11 @@ function TaskCard({
 
   return (
     <div className={`${styles} ${selectedStyle}`}>
-      {openEditor ? <TaskEditor handleEditTask={handleEditTask} /> : task}
+      {openEditor ? (
+        <TaskEditor currentTask={currentTask} handleEditTask={handleEditTask} />
+      ) : (
+        task
+      )}
     </div>
   );
 }

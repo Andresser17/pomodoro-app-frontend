@@ -45,48 +45,6 @@ function App() {
     setOpenModal(!openModal);
   };
 
-  const parseTasks = () => {
-    const pending = {
-      id: "pen-",
-      title: "Pending - Start development of pomodoro app",
-      description:
-        "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
-      expectedPomodoros: 3,
-      completedPomodoros: 0,
-      color: "#333",
-      completed: false,
-    };
-
-    let newPendingTasks = [];
-    for (let i = 0; i < 5; i++) {
-      let newId = `${pending.id}${String(i)}`;
-      newPendingTasks.push({ ...pending, id: newId });
-    }
-    setPendingTasks(newPendingTasks);
-
-    const completed = {
-      id: "com-",
-      title: "Completed - Start development of pomodoro app",
-      description:
-        "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
-      expectedPomodoros: 3,
-      completedPomodoros: 3,
-      color: "#333",
-      completed: true,
-    };
-
-    let newCompletedTasks = [];
-    for (let i = 0; i < 5; i++) {
-      let newId = `${completed.id}${String(i)}`;
-      newCompletedTasks.push({ ...completed, id: newId });
-    }
-    setCompletedTasks(newCompletedTasks);
-  };
-
-  useEffect(() => {
-    parseTasks();
-  }, []);
-
   const logoutUser = useCallback(() => {
     authService.logout();
     window.location.reload();
@@ -161,6 +119,17 @@ function App() {
     </div>
   );
 
+  // Fetch user tasks
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const user = authService.getCurrentUser();
+      const tasks = await userService.getUserTasks(user.id);
+      // Set fetched task to state
+      setPendingTasks(tasks.data)
+    };
+    fetchTasks();
+  }, []);
+
   return (
     <main className="min-h-screen bg-slate-400">
       {/* User selected modal */}
@@ -201,14 +170,12 @@ function App() {
             {
               id: "pending-tasks",
               tab: "Pending Tasks",
-              subTabs: ["Today", "Tomorrow"],
               tasks: [...pendingTasks],
               default: true,
             },
             {
               id: "completed-tasks",
               tab: "Completed Tasks",
-              subTabs: ["Today", "Tomorrow"],
               tasks: [...completedTasks],
             },
           ]}
