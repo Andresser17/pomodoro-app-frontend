@@ -1,4 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  createContext,
+  useContext,
+} from "react";
 import { useReactiveVar } from "@apollo/client";
 // React-quill
 import ReactQuill from "react-quill";
@@ -11,7 +18,11 @@ import { selectedTaskVar } from "cache";
 import authService from "services/auth.service";
 import userService from "services/user.service";
 
+// Delete not saved task from listOfTasks state
+const TaskContext = createContext();
+
 function TaskEditor({ task, setTask, handleEditTask }) {
+  // Props
   const [currentTask, setCurrentTask] = useState({
     _id: "",
     title: "",
@@ -22,9 +33,9 @@ function TaskEditor({ task, setTask, handleEditTask }) {
   });
   const [description, setDescription] = useState("");
 
-  // Set props.task to component state
+  // If props.task is undefined, set to component state
   useEffect(() => {
-    if (!task?.openEditor) {
+    if (!task?.newTask) {
       const { description, ...newTask } = task;
       setCurrentTask(newTask);
       setDescription(description);
@@ -33,8 +44,10 @@ function TaskEditor({ task, setTask, handleEditTask }) {
 
   // Update editor state
   const handleOnChange = (e, key) => {
-    const value =
+    let value =
       e.target?.type === "number" ? Number(e.target.value) : e.target.value;
+
+    if (e.target?.type === "number" && value < 0) value = 0;
 
     setCurrentTask({
       ...currentTask,
@@ -75,7 +88,9 @@ function TaskEditor({ task, setTask, handleEditTask }) {
         />
       </div>
 
-      {/* If user save changes update parent state */}
+      {/* If user save, update parent state */}
+      {/* If is a new task and user don't save. */}
+      {/* Delete task from array */}
       <div className="flex justify-end mt-4">
         <button
           onClick={() => handleEditTask()}
@@ -106,13 +121,17 @@ function TaskCard({
   const [task, setTask] = useState({});
   const [disabledCard] = useState(false);
   const [openEditor, setOpenEditor] = useState(false);
-  const [saveChanges, setSaveChanges] = useState(false);
-  const [createdNewTask, setCreatedNewTask] = useState(false);
+  const [saveUpdates, setSaveUpdates] = useState(false);
+  const [createNewTask, setCreateNewTask] = useState(false);
   // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompletedStyles, setTaskCompletedStyles] = useState("");
   const [disabledCardStyles, setDisabledCardStyles] = useState("");
   const styles = `${currentTask.color} bg-blue-600 mb-4 p-2 w-96 last:mb-0`;
+  // Context
+  const deleteLastItemFromTasks = useContext(TaskContext);
+
+  // -------- Component logic --------
 
   // Set props.currentTask to state
   useEffect(() => {
@@ -121,12 +140,14 @@ function TaskCard({
 
   // If props.newTask is provided update openEditor state
   useEffect(() => {
-    if (newTask !== undefined) {
+    if (newTask) {
       setOpenEditor(newTask);
+      setCreateNewTask(newTask);
     }
   }, [newTask]);
 
   // After openEditor state is updated, call setChildIsMounted
+  // This help to set user scroll to bottom of component without errors
   useEffect(() => {
     const childIsMounted = () => {
       if (openEditor) {
@@ -136,7 +157,7 @@ function TaskCard({
     childIsMounted();
   }, [openEditor, setChildIsMounted]);
 
-  // If user click card, call this
+  // If user click card, update selectedTask state
   const handleTaskClick = (e) => {
     setSelectedTask({
       id: currentTask?.id || currentTask?._id,
@@ -144,7 +165,79 @@ function TaskCard({
     });
   };
 
-  // If task is selected apply this style
+  // Add completed pomodoro to task after
+  const addCompletedPomodoro = () => {
+    // setCompletedPomodoros(completedPomodoros + 1);
+  };
+
+  // Toggle editor and manage updates made by user
+  const handleEditTask = (lastUpdates) => {
+    // Save or discard changes
+    if (lastUpdates) {
+      setTask({ ...lastUpdates });
+      setSaveUpdates(true);
+    }
+
+    // If user don't save new task, delete from array
+    if (!lastUpdates && createNewTask) {
+      deleteLastItemFromTasks();
+      setCreateNewTask(false);
+    }
+
+    // Toggle task editor
+    setAddedNewTask(false);
+    setOpenEditor(!openEditor);
+  };
+
+  // Save task's updates in db
+  useEffect(() => {
+    const saveUpdateInDb = async () => {
+      if (saveUpdates && task._id) {
+        const user = authService.getCurrentUser();
+        const { _id, ...newTask } = task;
+        await userService.updateUserTask(user.id, _id, newTask);
+
+        setSaveUpdates(false);
+      }
+    };
+    saveUpdateInDb();
+  }, [task, saveUpdates, setSaveUpdates]);
+
+  // Save new task in db
+  useEffect(() => {
+    const saveNewTaskInDb = async () => {
+      if (task?.title?.length > 0 && createNewTask) {
+        const user = authService.getCurrentUser();
+        const { openEditor, ...newTask } = task;
+        await userService.createUserTask(user.id, newTask);
+
+        setCreateNewTask(false);
+        setSaveUpdates(false);
+      }
+
+      // // If not saved, delete from listOfTasks state
+      // if (task?.openEditor && !createNewTask && !saveUpdates) {
+      //   console.log(task);
+      //   console.log("not saved");
+      // }
+    };
+    saveNewTaskInDb();
+  }, [task, createNewTask, setCreateNewTask, saveUpdates, setSaveUpdates]);
+
+  // -------- Styles logic --------
+
+  // If timer is started disable
+  // the possibility of change selected task
+  useEffect(() => {
+    const toggleDisabledCard = () => {
+      if (!disabledCard) {
+        setDisabledCardStyles("");
+      } else setDisabledCardStyles("cursor-pointer");
+    };
+    toggleDisabledCard();
+  }, [disabledCard]);
+
+  // If selectedTask state is updated, apply selected style
   useEffect(() => {
     const applySelectedStyles = () => {
       if (selectedTask.id === currentTask._id) {
@@ -161,60 +254,7 @@ function TaskCard({
     } else setTaskCompletedStyles("");
   };
 
-  // Add completed pomodoro to task
-  const addCompletedPomodoro = () => {
-    // setCompletedPomodoros(completedPomodoros + 1);
-  };
-
-  // Toggle editor and manage updates made by user
-  const handleEditTask = (lastUpdates) => {
-    // Save or discard changes
-    if (lastUpdates) {
-      setTask({ ...lastUpdates });
-      setSaveChanges(true);
-    }
-
-    // Toggle task editor
-    setAddedNewTask(false);
-    setOpenEditor(!openEditor);
-  };
-
-  // Save changes to task in db
-  useEffect(() => {
-    const saveUpdateToDb = async () => {
-      if (saveChanges && task._id) {
-        const user = authService.getCurrentUser();
-        const { _id, ...newTask } = task;
-        await userService.updateUserTask(user.id, _id, newTask);
-
-        setSaveChanges(false);
-      }
-    };
-    saveUpdateToDb();
-
-    // const saveNewTaskToDb = async () => {
-    //   if () {
-    //     const user = authService.getCurrentUser();
-    //     const {_id, ...newTask} = task;
-    //     await userService.createUserTask(user.id, newTask);
-
-    //     setSaveChanges(false);
-    //   }
-
-    // }
-    // saveNewTaskToDb();
-  }, [task, saveChanges, setSaveChanges]);
-
-  // If timer is started disable
-  // the possibility of change selected task
-  useEffect(() => {
-    const toggleDisabledCard = () => {
-      if (!disabledCard) {
-        setDisabledCardStyles("");
-      } else setDisabledCardStyles("cursor-pointer");
-    };
-    toggleDisabledCard();
-  }, [disabledCard]);
+  // -------- Component structure --------
 
   const taskComp = (
     <div className={`${disabledCardStyles}`}>
@@ -269,27 +309,17 @@ function TaskCard({
 }
 
 function TaskCards({ addedNewTask, setAddedNewTask, tasks, id, selected }) {
+  // States
   const [childIsMounted, setChildIsMounted] = useState(false);
   // Default styles
   let styles = `overflow-y-scroll mt-4`;
-  const [show, setShow] = useState("hidden");
+  const [showTasks, setShowTasks] = useState("hidden");
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
   // Get component container div
   const container = useRef();
-  const cards = tasks.map((task, key) => {
-    return (
-      <TaskCard
-        selectedTask={selectedTask}
-        setSelectedTask={selectedTaskVar}
-        key={key}
-        currentTask={task}
-        newTask={task?.openEditor}
-        setChildIsMounted={setChildIsMounted}
-        setAddedNewTask={setAddedNewTask}
-      />
-    );
-  });
+
+  // -------- Component logic --------
 
   // Manage component scroll position
   const scrollToBottom = useCallback(() => {
@@ -307,49 +337,40 @@ function TaskCards({ addedNewTask, setAddedNewTask, tasks, id, selected }) {
     scrollToBottom();
   });
 
-  // Change selected tasks view
+  // -------- Style logic --------
+
+  // If Tab is unselected, hide component
   useEffect(() => {
     const toggle = () => {
       if (id === selected) {
-        setShow("");
-      } else setShow("hidden");
+        setShowTasks("");
+      } else setShowTasks("hidden");
     };
     toggle();
   }, [id, selected]);
+
+  // -------- Component structure --------
+  const cards = tasks.map((task, key) => {
+    return (
+      <TaskCard
+        key={key}
+        selectedTask={selectedTask}
+        setSelectedTask={selectedTaskVar}
+        currentTask={task}
+        newTask={task?.newTask}
+        setChildIsMounted={setChildIsMounted}
+        setAddedNewTask={setAddedNewTask}
+      />
+    );
+  });
 
   return (
     <div
       onClick={scrollToBottom}
       ref={container}
-      className={`${styles} ${show}`}
+      className={`${styles} ${showTasks}`}
     >
       {cards}
-    </div>
-  );
-}
-
-function SubTabs(props) {
-  // Default styles for subTab
-  let styles = "flex w-full bg-green-600 even:bg-yellow-600";
-  const [show, setShow] = useState("hidden");
-
-  // Change selected subtab
-  useEffect(() => {
-    const toggle = () => {
-      if (props.id === props.selected) {
-        setShow("");
-      } else setShow("hidden");
-    };
-    toggle();
-  }, [props.id, props.selected]);
-
-  return (
-    <div className={`${styles} ${show}`}>
-      {props.items.map((item, i) => (
-        <li key={i} className="mx-2">
-          <span className="underline cursor-pointer">{item}</span>
-        </li>
-      ))}
     </div>
   );
 }
@@ -384,7 +405,37 @@ function Tasks(props) {
   const [listOfTasks, setListOfTasks] = useState([]);
   const [selectedTab, setSelectedTab] = useState("");
   const [addedNewTask, setAddedNewTask] = useState(false);
-  // Components to render
+
+  // -------- Component logic --------
+
+  // Set props.tasks to state
+  useEffect(() => {
+    setListOfTasks(props.tasks);
+  }, [props.tasks]);
+
+  // Add new task to the list
+  const handleAddNewTask = () => {
+    if (addedNewTask) return;
+    const [defaultTab, ...rest] = listOfTasks;
+
+    setListOfTasks([
+      { ...defaultTab, tasks: [...defaultTab.tasks, { newTask: true }] },
+      ...rest,
+    ]);
+    // Set scroll to final position;
+    setAddedNewTask(true);
+  };
+
+  // If new task is not saved, delete from pending tasks array
+  const deleteLastItemFromTasks = () => {
+    const newList = [...listOfTasks];
+    newList[0].tasks = listOfTasks[0].tasks.slice(0, -1);
+    setListOfTasks(newList);
+  };
+
+  // -------- Styles logic --------
+
+  // -------- Component structure --------
   let tasks = [];
   let tabs = listOfTasks.map((item, i) => {
     const cards = (
@@ -415,38 +466,6 @@ function Tasks(props) {
     );
   });
 
-  // Set props.tasks to state
-  useEffect(() => {
-    setListOfTasks(props.tasks);
-  }, [props.tasks]);
-
-  // Add new task to the list
-  const handleAddNewTask = () => {
-    if (addedNewTask) return;
-
-    // const newTask = {
-    //   id: "pen-898",
-    //   title: "New Task 898 - Start development of pomodoro app",
-    //   description:
-    //     "Amet vero consequatur maiores ab assumenda Quas obcaecati voluptatem amet mollitia sed Maxime consequuntur at sequi a minima facilis.",
-    //   expectedPomodoros: 3,
-    //   completedPomodoros: 3,
-    //   color: "#333",
-    //   completed: true,
-    //   // Open editor by default
-    //   openEditor: true,
-    // };
-
-    const [defaultTab, ...rest] = listOfTasks;
-
-    setListOfTasks([
-      { ...defaultTab, tasks: [...defaultTab.tasks, { openEditor: true }] },
-      ...rest,
-    ]);
-    // Set scroll to final position;
-    setAddedNewTask(true);
-  };
-
   return (
     <div className="flex flex-col grow-1 p-4 mt-4 h-[27rem] text-white bg-zinc-900">
       <div className="flex items-center justify-between">
@@ -461,7 +480,9 @@ function Tasks(props) {
         </button>
       </div>
       {/* List of tasks */}
-      {tasks}
+      <TaskContext.Provider value={deleteLastItemFromTasks}>
+        {tasks}
+      </TaskContext.Provider>
     </div>
   );
 }
