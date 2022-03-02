@@ -93,13 +93,15 @@ function TaskEditor({ task, setTask, handleEditTask }) {
       {/* Delete task from array */}
       <div className="flex justify-end mt-4">
         <button
-          onClick={() => handleEditTask()}
+          onClick={() => handleEditTask(undefined, task?.newTask)}
           className="px-2 py-1 text-white bg-red-600 rounded"
         >
           Cancel
         </button>
         <button
-          onClick={() => handleEditTask({ description, ...currentTask })}
+          onClick={() =>
+            handleEditTask({ description, ...currentTask }, task?.newTask)
+          }
           className="px-4 py-2 bg-green-600 rounded"
         >
           Save
@@ -122,7 +124,7 @@ function TaskCard({
   const [disabledCard] = useState(false);
   const [openEditor, setOpenEditor] = useState(false);
   const [saveUpdates, setSaveUpdates] = useState(false);
-  const [createNewTask, setCreateNewTask] = useState(false);
+  const [saveNewTask, setSaveNewTask] = useState(false);
   // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompletedStyles, setTaskCompletedStyles] = useState("");
@@ -142,7 +144,6 @@ function TaskCard({
   useEffect(() => {
     if (newTask) {
       setOpenEditor(newTask);
-      setCreateNewTask(newTask);
     }
   }, [newTask]);
 
@@ -171,22 +172,33 @@ function TaskCard({
   };
 
   // Toggle editor and manage updates made by user
-  const handleEditTask = (lastUpdates) => {
-    // Save or discard changes
-    if (lastUpdates) {
-      setTask({ ...lastUpdates });
-      setSaveUpdates(true);
-    }
-
-    // If user don't save new task, delete from array
-    if (!lastUpdates && createNewTask) {
-      deleteLastItemFromTasks();
-      setCreateNewTask(false);
-    }
-
+  const handleEditTask = (lastUpdates, newTask) => {
     // Toggle task editor
     setAddedNewTask(false);
-    setOpenEditor(!openEditor);
+    setOpenEditor(false);
+
+    // New Task
+    if (newTask) {
+      // If task title is empty or edit was cancelled
+      if (lastUpdates?.title === "" || !lastUpdates) {
+        deleteLastItemFromTasks();
+        return;
+      }
+
+      setTask({ ...lastUpdates });
+      setSaveNewTask(true);
+      return;
+    }
+
+    // Edit
+
+    // If task title is empty, don't save
+    if (lastUpdates?.title === "" || !lastUpdates) {
+      return;
+    }
+
+    setTask({ ...lastUpdates });
+    setSaveUpdates(true);
   };
 
   // Save task's updates in db
@@ -206,23 +218,15 @@ function TaskCard({
   // Save new task in db
   useEffect(() => {
     const saveNewTaskInDb = async () => {
-      if (task?.title?.length > 0 && createNewTask) {
+      if (saveNewTask) {
         const user = authService.getCurrentUser();
         const { openEditor, ...newTask } = task;
         await userService.createUserTask(user.id, newTask);
-
-        setCreateNewTask(false);
-        setSaveUpdates(false);
+        setSaveNewTask(false);
       }
-
-      // // If not saved, delete from listOfTasks state
-      // if (task?.openEditor && !createNewTask && !saveUpdates) {
-      //   console.log(task);
-      //   console.log("not saved");
-      // }
     };
     saveNewTaskInDb();
-  }, [task, createNewTask, setCreateNewTask, saveUpdates, setSaveUpdates]);
+  }, [task, saveNewTask, setSaveNewTask]);
 
   // -------- Styles logic --------
 
@@ -276,7 +280,7 @@ function TaskCard({
       />
       <div className="flex justify-end mt-4">
         <button
-          onClick={() => handleEditTask()}
+          onClick={() => setOpenEditor(true)}
           className="w-6 mr-4 text-white"
           disabled={disabledCard}
         >
