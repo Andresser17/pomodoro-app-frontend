@@ -131,7 +131,8 @@ function TaskCard({
   const [disabledCardStyles, setDisabledCardStyles] = useState("");
   const styles = `${currentTask.color} bg-blue-600 mb-4 p-2 w-96 last:mb-0`;
   // Context
-  const deleteLastItemFromTasks = useContext(TaskContext);
+  const { deleteLastItemFromTasks, moveCompletedTask } =
+    useContext(TaskContext);
 
   // -------- Component logic --------
 
@@ -228,6 +229,20 @@ function TaskCard({
     saveNewTaskInDb();
   }, [task, saveNewTask, setSaveNewTask]);
 
+  // Move task to completed tab
+  const handleCompletedTask = () => {
+    // If task is completed apply this style
+    if (taskCompletedStyles === "") {
+      setTaskCompletedStyles("line-through");
+    } else setTaskCompletedStyles("");
+
+    // Toggle completed property and move task
+    const newTask = { ...task, completed: !task.completed };
+    setTask(newTask);
+    setSaveUpdates(true);
+    moveCompletedTask(newTask);
+  };
+
   // -------- Styles logic --------
 
   // If timer is started disable
@@ -250,13 +265,6 @@ function TaskCard({
     };
     applySelectedStyles();
   }, [selectedTask, currentTask]);
-
-  // If task is completed apply this style
-  const handleCompletedTask = () => {
-    if (taskCompletedStyles === "") {
-      setTaskCompletedStyles("line-through");
-    } else setTaskCompletedStyles("");
-  };
 
   // -------- Component structure --------
 
@@ -432,8 +440,26 @@ function Tasks(props) {
 
   // If new task is not saved, delete from pending tasks array
   const deleteLastItemFromTasks = () => {
-    const newList = [...listOfTasks];
-    newList[0].tasks = listOfTasks[0].tasks.slice(0, -1);
+    const newList = structuredClone(listOfTasks);
+    newList[0].tasks = newList[0].tasks.slice(0, -1);
+    setListOfTasks(newList);
+  };
+
+  // If task is completed move to completed tab
+  const moveCompletedTask = (completedTask) => {
+    // Add completed task to completed tab
+    const newCompletedList = [...listOfTasks[1].tasks, completedTask];
+
+    // Remove completed task from pending tab
+    const newPendingList = [...listOfTasks[0].tasks].filter(
+      (task, i) => task._id !== completedTask._id
+    );
+
+    // Save in state
+    const newList = structuredClone(listOfTasks);
+    newList[0].tasks = newPendingList;
+    newList[1].tasks = newCompletedList;
+
     setListOfTasks(newList);
   };
 
@@ -484,7 +510,9 @@ function Tasks(props) {
         </button>
       </div>
       {/* List of tasks */}
-      <TaskContext.Provider value={deleteLastItemFromTasks}>
+      <TaskContext.Provider
+        value={{ deleteLastItemFromTasks, moveCompletedTask }}
+      >
         {tasks}
       </TaskContext.Provider>
     </div>
