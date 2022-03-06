@@ -112,6 +112,7 @@ function TaskEditor({ task, setTask, handleEditTask }) {
 }
 
 function TaskCard({
+  tabOriginId,
   newTask,
   currentTask,
   setChildIsMounted,
@@ -125,11 +126,12 @@ function TaskCard({
   const [openEditor, setOpenEditor] = useState(false);
   const [saveUpdates, setSaveUpdates] = useState(false);
   const [saveNewTask, setSaveNewTask] = useState(false);
+  const [tabTargetId, setTabTargetId] = useState("");
   // Styles
   const [selectedStyle, setSelectedStyle] = useState("");
   const [taskCompletedStyles, setTaskCompletedStyles] = useState("");
   const [disabledCardStyles, setDisabledCardStyles] = useState("");
-  const styles = `${currentTask.color} bg-blue-600 mb-4 p-2 w-96 last:mb-0`;
+  const styles = `${currentTask.color} bg-blue-600 mb-4 p-2 w-full last:mb-0`;
   // Context
   const { deleteLastItemFromTasks, moveTaskLocation } = useContext(TaskContext);
 
@@ -205,15 +207,18 @@ function TaskCard({
   useEffect(() => {
     const saveUpdateInDb = async () => {
       if (saveUpdates && task._id) {
-      console.log(saveUpdates)
         const user = authService.getCurrentUser();
         const { _id, ...newTask } = task;
-        await userService.updateUserTask(user.id, _id, newTask);
+        moveTaskLocation(task, tabTargetId, tabOriginId);
 
-        setSaveUpdates(false);
+        await userService.updateUserTask(user.id, _id, newTask);
       }
     };
     saveUpdateInDb();
+
+    return () => {
+      setSaveUpdates(false);
+    };
   }, [task, saveUpdates, setSaveUpdates]);
 
   // Save new task in db
@@ -223,10 +228,13 @@ function TaskCard({
         const user = authService.getCurrentUser();
         const { openEditor, ...newTask } = task;
         await userService.createUserTask(user.id, newTask);
-        setSaveNewTask(false);
       }
     };
     saveNewTaskInDb();
+
+    return () => {
+      setSaveNewTask(false);
+    };
   }, [task, saveNewTask, setSaveNewTask]);
 
   // Move task between tabs
@@ -239,10 +247,8 @@ function TaskCard({
     // Toggle completed property and move task
     const newTask = { ...task, completed: !task.completed };
     setTask(newTask);
-    console.log("hello")
+    setTabTargetId(tab);
     setSaveUpdates(true);
-
-    moveTaskLocation(newTask, tab);
   };
 
   // -------- Styles logic --------
@@ -332,11 +338,11 @@ function TaskCard({
   );
 }
 
-function TaskCards({ addedNewTask, setAddedNewTask, tasks, id, selected }) {
+function TaskCards({ addedNewTask, setAddedNewTask, tasks, tabOriginId, selected }) {
   // States
   const [childIsMounted, setChildIsMounted] = useState(false);
   // Default styles
-  let styles = `overflow-y-scroll mt-4`;
+  let styles = `overflow-y-scroll mt-4 w-96`;
   const [showTasks, setShowTasks] = useState("hidden");
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
@@ -366,18 +372,19 @@ function TaskCards({ addedNewTask, setAddedNewTask, tasks, id, selected }) {
   // If Tab is unselected, hide component
   useEffect(() => {
     const toggle = () => {
-      if (id === selected) {
+      if (tabOriginId === selected) {
         setShowTasks("");
       } else setShowTasks("hidden");
     };
     toggle();
-  }, [id, selected]);
+  }, [tabOriginId, selected]);
 
   // -------- Component structure --------
   const cards = tasks.map((task, key) => {
     return (
       <TaskCard
         key={key}
+        tabOriginId={tabOriginId}
         selectedTask={selectedTask}
         setSelectedTask={selectedTaskVar}
         currentTask={task}
@@ -426,7 +433,7 @@ function Tab(props) {
 
 function Tasks(props) {
   // States
-  const [listOfTasks, setListOfTasks] = useState([]);
+  const [listOfTabs, setListOfTabs] = useState([]);
   const [selectedTab, setSelectedTab] = useState("");
   const [addedNewTask, setAddedNewTask] = useState(false);
 
@@ -434,15 +441,15 @@ function Tasks(props) {
 
   // Set props.tasks to state
   useEffect(() => {
-    setListOfTasks(props.tasks);
+    setListOfTabs(props.tasks);
   }, [props.tasks]);
 
   // Add new task to the list
   const handleAddNewTask = () => {
     if (addedNewTask) return;
-    const [defaultTab, ...rest] = listOfTasks;
+    const [defaultTab, ...rest] = listOfTabs;
 
-    setListOfTasks([
+    setListOfTabs([
       { ...defaultTab, tasks: [...defaultTab.tasks, { newTask: true }] },
       ...rest,
     ]);
@@ -452,20 +459,20 @@ function Tasks(props) {
 
   // If new task is not saved, delete from pending tasks array
   const deleteLastItemFromTasks = () => {
-    const newList = structuredClone(listOfTasks);
+    const newList = structuredClone(listOfTabs);
     newList[0].tasks = newList[0].tasks.slice(0, -1);
-    setListOfTasks(newList);
+    setListOfTabs(newList);
   };
 
   // Move task between tabs' tasks arr
   const moveTaskLocation = (taskToMove, tabTargetId, tabOriginId) => {
-    const [tabTarget, tabOrigin] = structuredClone(listOfTasks).sort(
+    const [tabTarget, tabOrigin] = structuredClone(listOfTabs).sort(
       (first, second, i) => {
         if (first.id === tabTargetId) {
           return -1;
         }
-        // else if (i === 2) return 1;
-        return 1;
+        
+        if (second.id === tabOriginId) return 1;
       }
     );
 
@@ -478,7 +485,7 @@ function Tasks(props) {
     );
 
     // Save in state
-    const newList = structuredClone(listOfTasks).map((tab) => {
+    const newList = structuredClone(listOfTabs).map((tab) => {
       if (tab.id === tabTargetId) {
         tab.tasks = newTargetList;
         return tab;
@@ -488,20 +495,20 @@ function Tasks(props) {
       return tab;
     });
 
-    setListOfTasks(newList);
+    setListOfTabs(newList);
   };
 
   // -------- Styles logic --------
 
   // -------- Component structure --------
   let tasks = [];
-  let tabs = listOfTasks.map((item, i) => {
+  let tabs = listOfTabs.map((tab, i) => {
     const cards = (
       <TaskCards
-        key={item.tab}
-        id={item.id}
+        key={tab.tab}
+        tabOriginId={tab.id}
         selected={selectedTab}
-        tasks={item.tasks}
+        tasks={tab.tasks}
         addedNewTask={addedNewTask}
         setAddedNewTask={setAddedNewTask}
       />
@@ -510,14 +517,14 @@ function Tasks(props) {
 
     // Set first tab like default
     if (selectedTab.length === 0 && i === 0) {
-      setSelectedTab(item.id);
+      setSelectedTab(tab.id);
     }
 
     return (
       <Tab
-        title={item.tab}
-        key={item.tab}
-        id={item.id}
+        title={tab.tab}
+        key={tab.tab}
+        id={tab.id}
         selected={selectedTab}
         setSelected={setSelectedTab}
       />
