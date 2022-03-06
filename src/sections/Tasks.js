@@ -209,7 +209,9 @@ function TaskCard({
       if (saveUpdates && task._id) {
         const user = authService.getCurrentUser();
         const { _id, ...newTask } = task;
-        moveTaskLocation(task, tabTargetId, tabOriginId);
+        if (tabTargetId !== "") {
+          moveTaskLocation(task, tabTargetId, tabOriginId);
+        }
 
         await userService.updateUserTask(user.id, _id, newTask);
       }
@@ -227,6 +229,7 @@ function TaskCard({
       if (saveNewTask) {
         const user = authService.getCurrentUser();
         const { openEditor, ...newTask } = task;
+
         await userService.createUserTask(user.id, newTask);
       }
     };
@@ -338,7 +341,13 @@ function TaskCard({
   );
 }
 
-function TaskCards({ addedNewTask, setAddedNewTask, tasks, tabOriginId, selected }) {
+function TaskCards({
+  addedNewTask,
+  setAddedNewTask,
+  tasks,
+  tabOriginId,
+  selected,
+}) {
   // States
   const [childIsMounted, setChildIsMounted] = useState(false);
   // Default styles
@@ -471,7 +480,7 @@ function Tasks(props) {
         if (first.id === tabTargetId) {
           return -1;
         }
-        
+
         if (second.id === tabOriginId) return 1;
       }
     );
