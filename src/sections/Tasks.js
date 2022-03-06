@@ -131,8 +131,7 @@ function TaskCard({
   const [disabledCardStyles, setDisabledCardStyles] = useState("");
   const styles = `${currentTask.color} bg-blue-600 mb-4 p-2 w-96 last:mb-0`;
   // Context
-  const { deleteLastItemFromTasks, moveCompletedTask } =
-    useContext(TaskContext);
+  const { deleteLastItemFromTasks, moveTaskLocation } = useContext(TaskContext);
 
   // -------- Component logic --------
 
@@ -206,6 +205,7 @@ function TaskCard({
   useEffect(() => {
     const saveUpdateInDb = async () => {
       if (saveUpdates && task._id) {
+      console.log(saveUpdates)
         const user = authService.getCurrentUser();
         const { _id, ...newTask } = task;
         await userService.updateUserTask(user.id, _id, newTask);
@@ -229,18 +229,20 @@ function TaskCard({
     saveNewTaskInDb();
   }, [task, saveNewTask, setSaveNewTask]);
 
-  // Move task to completed tab
-  const handleCompletedTask = () => {
+  // Move task between tabs
+  const handleTaskLocation = (tab) => {
     // If task is completed apply this style
-    if (taskCompletedStyles === "") {
-      setTaskCompletedStyles("line-through");
-    } else setTaskCompletedStyles("");
+    // if (taskCompletedStyles === "") {
+    //   setTaskCompletedStyles("line-through");
+    // } else setTaskCompletedStyles("");
 
     // Toggle completed property and move task
     const newTask = { ...task, completed: !task.completed };
     setTask(newTask);
+    console.log("hello")
     setSaveUpdates(true);
-    moveCompletedTask(newTask);
+
+    moveTaskLocation(newTask, tab);
   };
 
   // -------- Styles logic --------
@@ -294,13 +296,23 @@ function TaskCard({
         >
           <EditIcon />
         </button>
-        <button
-          onClick={handleCompletedTask}
-          className="px-4 py-2 bg-green-600 rounded"
-          disabled={disabledCard}
-        >
-          Done
-        </button>
+        {task.completed ? (
+          <button
+            onClick={() => handleTaskLocation("pending-tasks")}
+            className="px-4 py-2 bg-red-600 rounded"
+            disabled={disabledCard}
+          >
+            Undone
+          </button>
+        ) : (
+          <button
+            onClick={() => handleTaskLocation("completed-tasks")}
+            className="px-4 py-2 bg-green-600 rounded"
+            disabled={disabledCard}
+          >
+            Done
+          </button>
+        )}
       </div>
     </div>
   );
@@ -445,20 +457,36 @@ function Tasks(props) {
     setListOfTasks(newList);
   };
 
-  // If task is completed move to completed tab
-  const moveCompletedTask = (completedTask) => {
+  // Move task between tabs' tasks arr
+  const moveTaskLocation = (taskToMove, tabTargetId, tabOriginId) => {
+    const [tabTarget, tabOrigin] = structuredClone(listOfTasks).sort(
+      (first, second, i) => {
+        if (first.id === tabTargetId) {
+          return -1;
+        }
+        // else if (i === 2) return 1;
+        return 1;
+      }
+    );
+
     // Add completed task to completed tab
-    const newCompletedList = [...listOfTasks[1].tasks, completedTask];
+    const newTargetList = [...tabTarget.tasks, taskToMove];
 
     // Remove completed task from pending tab
-    const newPendingList = [...listOfTasks[0].tasks].filter(
-      (task, i) => task._id !== completedTask._id
+    const newOriginList = [...tabOrigin.tasks].filter(
+      (task, i) => task._id !== taskToMove._id
     );
 
     // Save in state
-    const newList = structuredClone(listOfTasks);
-    newList[0].tasks = newPendingList;
-    newList[1].tasks = newCompletedList;
+    const newList = structuredClone(listOfTasks).map((tab) => {
+      if (tab.id === tabTargetId) {
+        tab.tasks = newTargetList;
+        return tab;
+      }
+
+      tab.tasks = newOriginList;
+      return tab;
+    });
 
     setListOfTasks(newList);
   };
@@ -511,7 +539,7 @@ function Tasks(props) {
       </div>
       {/* List of tasks */}
       <TaskContext.Provider
-        value={{ deleteLastItemFromTasks, moveCompletedTask }}
+        value={{ deleteLastItemFromTasks, moveTaskLocation }}
       >
         {tasks}
       </TaskContext.Provider>

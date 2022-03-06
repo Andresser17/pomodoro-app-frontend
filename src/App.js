@@ -124,8 +124,17 @@ function App() {
     const fetchTasks = async () => {
       const user = authService.getCurrentUser();
       const tasks = await userService.getUserTasks(user.id);
+
+      const pendingTasks = tasks.data.filter(
+        (task) => !task.completed
+      );
+      const completedTasks = tasks.data.filter(
+        (task) => task.completed
+      );
+
       // Set fetched task to state
-      setPendingTasks(tasks.data)
+      setPendingTasks(pendingTasks);
+      setCompletedTasks(completedTasks);
     };
     fetchTasks();
   }, []);
