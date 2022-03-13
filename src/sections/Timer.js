@@ -93,6 +93,8 @@ function Counter(props) {
 }
 
 function Timer(props) {
+  // -------- State --------
+  
   // Remain time in minutes
   const [remainTime, setRemainTime] = useState(0);
   // Toggle between different Pomodoro modes.
@@ -100,6 +102,8 @@ function Timer(props) {
   const [startCount, setStartCount] = useState(false);
   // Get selected task from store
   const selectedTask = useReactiveVar(selectedTaskVar);
+
+  // -------- Component logic --------
 
   // Start or stop count
   const toggle = () => {
@@ -165,6 +169,9 @@ function Timer(props) {
   // Run countdown
   useInterval(countdown, startCount ? 1000 : null);
 
+  // -------- Style logic --------
+
+  // -------- Component structure --------
   return (
     <div className="flex flex-col justify-center p-4 text-gray-300 rounded bg-zinc-900 w-96">
       <CounterToggle

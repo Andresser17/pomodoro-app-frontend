@@ -21,7 +21,7 @@ import userService from "./services/user.service";
 import eventBus from "./common/eventBus";
 
 function App() {
-  // States
+  // -------- States --------
   const [pendingTasks, setPendingTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [userSettings, setUserSettings] = useState({});
@@ -29,6 +29,8 @@ function App() {
   const [openModal, setOpenModal] = useState(false);
   const [modalToOpen, setModalToOpen] = useState(null);
   const [userIsLogged, setUserIsLogged] = useState(null);
+
+  // -------- Component logic --------
 
   // If a user is logged, get info
   useEffect(() => {
@@ -79,6 +81,25 @@ function App() {
     }
   }, []);
 
+  // Fetch user tasks
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const user = authService.getCurrentUser();
+      if (!user?.id) return;
+      const tasks = await userService.getUserTasks(user.id);
+      const pendingTasks = tasks.data.filter((task) => !task.completed);
+      const completedTasks = tasks.data.filter((task) => task.completed);
+
+      // Set fetched task to state
+      setPendingTasks(pendingTasks);
+      setCompletedTasks(completedTasks);
+    };
+    fetchTasks();
+  }, []);
+
+  // -------- Styles logic --------
+
+  // -------- Component structure --------
   const userOptions = (
     <UserOptions
       buttons={[
@@ -119,26 +140,6 @@ function App() {
     </div>
   );
 
-  // Fetch user tasks
-  useEffect(() => {
-    const fetchTasks = async () => {
-      const user = authService.getCurrentUser();
-      const tasks = await userService.getUserTasks(user.id);
-
-      const pendingTasks = tasks.data.filter(
-        (task) => !task.completed
-      );
-      const completedTasks = tasks.data.filter(
-        (task) => task.completed
-      );
-
-      // Set fetched task to state
-      setPendingTasks(pendingTasks);
-      setCompletedTasks(completedTasks);
-    };
-    fetchTasks();
-  }, []);
-
   return (
     <main className="min-h-screen bg-slate-400">
       {/* User selected modal */}
@@ -167,10 +168,11 @@ function App() {
       <div className="flex flex-col items-center py-4">
         <Timer
           modes={[
-            { mode: "work", remainTime: 3, default: true },
-            { mode: "short-break", remainTime: 5 },
-            { mode: "long-break", remainTime: 7 },
+            { mode: "work", remainTime: userSettings.pomodoro, default: true },
+            { mode: "short-break", remainTime: userSettings.shortBreak },
+            { mode: "long-break", remainTime: userSettings.longBreak },
           ]}
+          settings={userSettings}
         />
         <Tasks
           tasks={[

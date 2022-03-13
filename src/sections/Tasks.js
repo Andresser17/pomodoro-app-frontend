@@ -221,7 +221,14 @@ function TaskCard({
     return () => {
       setSaveUpdates(false);
     };
-  }, [task, saveUpdates, setSaveUpdates]);
+  }, [
+    task,
+    tabTargetId,
+    tabOriginId,
+    saveUpdates,
+    setSaveUpdates,
+    moveTaskLocation,
+  ]);
 
   // Save new task in db
   useEffect(() => {
@@ -482,6 +489,8 @@ function Tasks(props) {
         }
 
         if (second.id === tabOriginId) return 1;
+
+        return 0;
       }
     );
 

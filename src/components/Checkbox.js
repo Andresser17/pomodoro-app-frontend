@@ -10,12 +10,8 @@ function Checkbox(props) {
   const [styles, setStyles] = useState("");
 
   const handleChecked = (e) => {
-    const key = props.name
-      .split("-")
-      .map((word, i) => (i > 0 ? word[0].toUpperCase() + word.slice(1) : word))
-      .join("");
     // Save new current value
-    props.saveChange(key, !checked);
+    props.saveChanges(!checked);
     setChecked(!checked);
   };
 
