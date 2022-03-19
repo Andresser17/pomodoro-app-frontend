@@ -39,6 +39,11 @@ const setUserSettings = (userId, newSettings) => {
   return api.patch(url, newSettings);
 };
 
+const setUserMode = (userId, newMode) => {
+  const url = API_URL + `${userId}/timermodes`;
+  return api.patch(url, newMode);
+};
+
 const userService = {
   getPublicContent,
   getUserBoard,
@@ -49,6 +54,7 @@ const userService = {
   updateUserTask,
   getUserSettings,
   setUserSettings,
+  setUserMode,
 };
 
 export default userService;

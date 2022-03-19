@@ -167,11 +167,6 @@ function App() {
       </TopPanel>
       <div className="flex flex-col items-center py-4">
         <Timer
-          modes={[
-            { mode: "work", remainTime: userSettings.pomodoro, default: true },
-            { mode: "short-break", remainTime: userSettings.shortBreak },
-            { mode: "long-break", remainTime: userSettings.longBreak },
-          ]}
           settings={userSettings}
         />
         <Tasks

@@ -9,16 +9,20 @@ import userService from "services/user.service";
 
 function UserSettings({ settings, setSettings }) {
   // Save change when user close modal
-  const getSettingsRef = useRef();
+  const getSettingsRef = useRef(settings);
   getSettingsRef.current = settings;
 
   useEffect(() => {
     const saveChangesToDb = async () => {
       const userId = authService.getCurrentUser()?.id;
-      const saved = await userService.setUserSettings(
-        userId,
-        getSettingsRef.current
-      );
+      const {timerModes, ...newSettings} = getSettingsRef.current;
+
+      // Save updates to modes
+      for (let mode of timerModes) {
+        await userService.setUserMode(userId, mode);
+      }
+
+      await userService.setUserSettings(userId, newSettings);
     };
 
     return () => {
@@ -193,9 +197,7 @@ function UserSettings({ settings, setSettings }) {
         text={{ text: "Dark Mode", style: "text-xl" }}
         name="dark-mode"
         checked={settings.darkMode}
-        saveChanges={(newValue) =>
-          handleSaveSettings("darkMode", newValue)
-        }
+        saveChanges={(newValue) => handleSaveSettings("darkMode", newValue)}
       />
     </div>
   );
